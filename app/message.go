@@ -3,7 +3,8 @@ package app
 // These are point less as before they are broadcasted they change to ROOM_BROADCAST Response
 const (
 	MESSAGE_TYPE_ROOM         = "ROOM"
-	MESSAGE_TYPE_ROOM_WELCOME = "ROOM_WELCOME"
+	MESSAGE_TYPE_ROOM_WELCOME = "ROOM_WELCOME" // Delete this
+	// MESSAGE_TYPE_ROOM_WELCOME = "ROOM_"
 )
 
 func NewAppMessage(messageType, payload string) AppMessage {

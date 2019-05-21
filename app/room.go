@@ -1,15 +1,18 @@
 package app
 
+import "fmt"
+
 type RoomI interface {
-	GetID() string
+	// GetID() string
 	AddUserClient(UserClient)
 	WriteMessage(clientMessage ClientAppMessage)
 	Broadcasts
 }
 
 type BaseRoom struct {
-	ID             string `json:"ID"`
-	Name           string `json:"Name"`
+	ID   string `json:"ID"`
+	Name string `json:"Name"`
+	// Todo: Change this to Map
 	clients        []UserClient
 	running        bool
 	minimumClients int
@@ -38,16 +41,31 @@ func (r *BaseRoom) AddUserClient(uc UserClient) {
 	r.clients = append(r.clients, uc)
 
 	// subscribe room to client
-	uc.GetClient().Subscribe(r) // <-------- Not Unit Untested
-
+	client := uc.GetClient() // <-------- Not Unit Untested
+	client.Subscribe(r)
+	fmt.Println("Room::AddUserClient() UC added")
 	r.updated()
 }
 
+// retest
 func (r *BaseRoom) updated() {
-	if r.isRunning() || !r.isReady() {
+	fmt.Println("Room::updated()")
+	// if r.isRunning() || !r.isReady() {
+	// 	fmt.Println("Room::updated() Room is running or not ready: (running) (isReady)", r.isRunning(), !r.isReady())
+	// 	return
+	// }
+
+	if !r.isReady() {
+		fmt.Println("Room::updated() is not ready", !r.isReady())
+		if r.isRunning() {
+			fmt.Println("Room::updated() Room is running and not ready: room should stop")
+			// r.stop()
+		}
+
 		return
 	}
 
+	fmt.Println("Room::updated() room is ready starting room")
 	r.start()
 }
 
@@ -74,30 +92,62 @@ func (r *BaseRoom) GetID() string {
 }
 
 func (r *BaseRoom) isRunning() bool {
+	fmt.Printf("Room::isRunning() %#v \n", r.running)
 	return r.running
 }
 
+/**
+I think it might be required to create a RoomResponse,
+This should extend ClientResponse but contain RoomId and Room.Running
+The payload should be untouched and what ever is given
+This will help when the room app is returning data
+*/
+
 func (r *BaseRoom) Broadcast(client IsClient, message ClientAppMessage) {
+	fmt.Printf("Room::Broadcast() clientId: %#v | message: %#v \n", client, message)
+
 	if !r.isRunning() {
+		// This working
+		fmt.Println("Room is not running writing to client")
+		for _, userClient := range r.clients {
+			userClient.GetClient().WriteJson(NewRoomWaitingToStart(r.GetID()))
+		}
 		return // Room is not running, should this now return an error
 	}
 
-	if !isRoomType(message.Type) {
+	messageType := message.Type
+
+	if !isRoomType(messageType) {
+		fmt.Println("Room::Broadcast(), message type note rooms: ", messageType)
 		return
 	}
 
-	response := NewRoomResponse(message.Payload)
+	if isRoomRequest(messageType) {
+		fmt.Printf("Room::Broadcast() Is room Request \n")
+		r.WriteMessage(message)
+		return
+	}
 
+	r.broadcast(message)
+}
+
+func (r *BaseRoom) broadcast(message ClientAppMessage) {
+	// move NewRoomResponse into Room
+	response := NewRoomResponse(message, r.GetID())
+
+	fmt.Println("Room::broadcast()::response", response)
 	for _, userClient := range r.clients {
 		userClient.GetClient().WriteJson(response)
 	}
 }
 
 func (r *BaseRoom) WriteMessage(message ClientAppMessage) {
+	fmt.Println("Room:: WriteMessage()::message", message)
 	if !r.isRunning() {
+		fmt.Println("Cant write to app as room is not running")
 		return
 	}
-
+	fmt.Println("Room:: WriteMessage()::writing")
 	r.roomApp.WriteMessage(NewRoomMessage(r, message.Payload))
 }
 
@@ -105,5 +155,29 @@ func (r *BaseRoom) WriteMessage(message ClientAppMessage) {
 func isRoomType(messageType string) bool {
 	return messageType == ClientResponseTypes().ROOM_BROADCAST ||
 		messageType == MESSAGE_TYPE_ROOM ||
-		messageType == MESSAGE_TYPE_ROOM_WELCOME
+		messageType == MESSAGE_TYPE_ROOM_WELCOME ||
+		messageType == "ROOM_REQUEST" || // add this Type to requests Types
+		messageType == "ROOM_BROADCAST_INIT"
+}
+
+//Untested
+func (r *BaseRoom) RemoveUserClient(uc UserClient) {
+	// This is a terrible way of doing this, need to change to slice to map
+
+	swop := make([]UserClient, 0)
+	for _, client := range r.clients {
+		if uc.GetClient().GetID() == client.GetClient().GetID() {
+			continue
+		}
+
+		swop = append(swop, client)
+	}
+
+	r.clients = swop
+
+	r.updated()
+}
+
+func isRoomRequest(messageType string) bool {
+	return messageType == "ROOM_REQUEST"
 }

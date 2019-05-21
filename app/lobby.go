@@ -10,6 +10,8 @@ import (
 type Lobby interface {
 	AddClient(client IsClient)
 	GetClient(id string) (IsClient, error)
+	Remove(IsClient)
+	ResolveUserClient(IsClient) (UserClient, error)
 	Broadcasts
 }
 
@@ -30,10 +32,24 @@ type RoomLobby struct {
 	userClientService UserClientService
 }
 
+func (l *RoomLobby) GetID() string {
+	return "Lobby"
+}
+
 func (l *RoomLobby) AddClient(client IsClient) {
 	l.clients[client.GetID()] = client
 
-	client.Subscribe(l)
+	client.SubscribeLobby(l)
+}
+
+// Untested
+func (l *RoomLobby) Remove(client IsClient) {
+	delete(l.clients, client.GetID())
+}
+
+// Untested
+func (l *RoomLobby) ResolveUserClient(c IsClient) (UserClient, error) {
+	return l.userClientService.Resolve(c)
 }
 
 func (l *RoomLobby) GetClient(id string) (IsClient, error) {
@@ -47,6 +63,8 @@ func (l *RoomLobby) GetClient(id string) (IsClient, error) {
 }
 
 func (l *RoomLobby) Broadcast(client IsClient, message ClientAppMessage) {
+	fmt.Println("Lobby::Broadcast()")
+	// This may not be needed any more as this check is don't in the client
 	if !IsLobbyMessage(message.Type) {
 		// To Test, use Client repo stub to test if the Client repository was called
 		// make lobby_test unit test
@@ -62,11 +80,13 @@ func (l *RoomLobby) Broadcast(client IsClient, message ClientAppMessage) {
 		l.joinRoom(client, message.Payload)
 		return
 	default:
+		// Should log unreconhgised lobby message type
 		return
 	}
 }
 
 func (l *RoomLobby) resolveUser(client IsClient, messagePayload string) {
+	fmt.Println("lobby::resolveUser()")
 	var payload struct {
 		UserID string `json:"user"`
 	}
@@ -99,11 +119,12 @@ func (l *RoomLobby) resolveUser(client IsClient, messagePayload string) {
 		return
 	}
 
+	fmt.Printf("Lobby::resolveUser():: resolved user writing to socket \n")
 	_ = client.WriteJson(newUserResolvedMessage(lobbyData))
 }
 
 func (l *RoomLobby) joinRoom(client IsClient, messagePayload string) {
-
+	fmt.Println("Lobby::joinRoom()")
 	userClient, err := l.userClientService.Resolve(client)
 	if err != nil {
 		client.WriteJson(newErrorResponse("USER_CLIENT_404"))
@@ -116,20 +137,32 @@ func (l *RoomLobby) joinRoom(client IsClient, messagePayload string) {
 		return
 	}
 
+	fmt.Println("Lobby::joinRoom() Can user join ")
 	if !l.roomRepository.CanUserJoin(userClient, roomId) {
+		fmt.Println("Lobby::joinRoom() user cant join ")
+
 		client.WriteJson(newErrorResponse(ClientResponseErrorType().USER_ROOM_AUTH))
 		return
 	}
 
+	fmt.Println("Lobby::joinRoom() Adding user client to repo ")
 	if err := l.roomRepository.AddUserClient(userClient, roomId); err != nil {
+		fmt.Println("Lobby::joinRoom() error adding UserClient to Room Repo", err)
 		client.WriteJson(newErrorResponse(ClientResponseErrorType().ADD_USER_TO_ROOM))
 		return
 	}
 
-	userClient.WriteJson(newUserJoinRoomMessage())
+	fmt.Printf(
+		"Lobby::joinRoom()::roomId: %#v, userId: %#v, clientId: %#v \n",
+		roomId,
+		userClient.GetUser().ID,
+		userClient.GetClient().GetID(),
+	)
+	userClient.WriteJson(newUserJoinRoomMessage(roomId))
 }
 
 func (l *RoomLobby) resolveRoomId(messagePayload string) (string, error) {
+	fmt.Println("Lobby::resolveRoomId()")
 	var payload struct {
 		RoomId string `json:"roomId"`
 	}
@@ -153,12 +186,14 @@ func (l *RoomLobby) getUser(userId string) (*User, error) {
 }
 
 func (l *RoomLobby) getLobbyData(user *User) (*LobbyData, error) {
+	fmt.Println("Lobby::getLobbyData()")
 	// use repository
 	rooms, err := l.roomRepository.GetRooms(user)
 	if err != nil {
 		return nil, err
 	}
 
+	fmt.Println("Lobby::getLobbyData() return")
 	return &LobbyData{
 			User:  *user,
 			Rooms: rooms,
@@ -183,8 +218,23 @@ func newUserResolvedMessage(ld *LobbyData) ClientResponse {
 	return ClientResponse{Type: ClientResponseTypes().USER_LOBBY_DATA, Payload: string(b)}
 }
 
-func newUserJoinRoomMessage() ClientResponse {
-	return ClientResponse{Type: ClientResponseTypes().USER_JOINED_ROOM, Payload: "success"}
+func newUserJoinRoomMessage(roomId string) ClientResponse {
+	data := struct {
+		RoomId string
+	}{
+		roomId,
+	}
+	b, err := json.Marshal(data)
+	if err != nil {
+		return newErrorResponse(err.Error())
+	}
+
+	return ClientResponse{Type: ClientResponseTypes().USER_JOINED_ROOM, Payload: string(b), RoomID: roomId}
+}
+
+// Untests
+func (l *RoomLobby) RemoveUserClient(uc UserClient) {
+	// To Implement when needed
 }
 
 type LobbyData struct {

@@ -1,12 +1,14 @@
 package app
 
 func newErrorResponse(errorType string) ClientResponse {
-	return ClientResponse{Type: "ERROR", Payload: GetResponseErrorMessages(errorType)}
+	return ClientResponse{"ERROR", GetResponseErrorMessages(errorType), ""}
 }
 
 type ClientResponse struct {
 	Type    string //types, ERROR, USER_LOBBY_DATA, ROOM_BROADCAST
 	Payload string
+	RoomID  string
+	// It might be worth adding RoomID
 }
 
 type ResponseTypes struct {
@@ -63,6 +65,14 @@ func GetResponseErrorMessages(key string) string {
 	return messages[key]
 }
 
-func NewRoomResponse(payload string) ClientResponse {
-	return ClientResponse{ClientResponseTypes().ROOM_BROADCAST, payload}
+func NewRoomResponse(message ClientAppMessage, roomId string) ClientResponse {
+	return ClientResponse{message.Type, message.Payload, roomId}
+}
+
+func NewRoomWaitingToStart(roomId string) ClientResponse {
+	return ClientResponse{
+		ClientResponseTypes().ROOM_BROADCAST,
+		`{"running":"false", "message":"waiting for room to start"}`,
+		roomId,
+	}
 }

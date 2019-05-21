@@ -1,0 +1,60 @@
+#message-board {
+    display: block;
+    height: 610px;
+    width: 400px;
+}
+
+#messages-row {
+    display: block;
+    height: 400px;
+    border: 1px solid black;
+    margin: 1px;
+}
+
+#current-room {
+    display: block;
+    height: 700px;
+    border: 1px solid black;
+    margin: 1px;
+}
+
+#rooms-container {
+    display: block;
+    /* height: 150px; */
+    border: 1px solid black;
+    margin: 1px;
+    background-color: aquamarine
+}
+
+#error-container p {
+    background-color: red
+}
+
+#message-form {
+    display: block;
+    height: 200px;
+    border: 1px solid green;
+    background-color: greenyellow;
+    margin: 1px;
+}
+
+.message-received{
+    text-align: left;
+    background-color: aqua;
+}
+.message-sent{
+    text-align: right;
+    background-color: cadetblue ;
+}
+
+.message-room{
+    text-align: right;
+    background-color: coral
+}
+
+#application-window{
+    margin: 0%;
+    width: 100%;
+    height: 100%;
+    border: 1px solid black;
+}
