@@ -69,7 +69,7 @@ func AUserRequestToJoinARoomItHasAccessTo() roomTest {
 
 	user := &(app.User{"U1"})
 	userRepository := &app.InMemoryUserRepository{}
-	roomService := &app.InMemoryRoomRepository{
+	roomService := &app.DefaultRoomService{
 		map[*app.User][]app.RoomI{
 			user: []app.RoomI{
 				app.NewDefaultRoom("r1", "Room1", nil),
@@ -101,7 +101,7 @@ func AUserGetsAnErrorResponseWhenUserClientCanNotBeResolved() roomTest {
 	})
 
 	userRepository := &app.InMemoryUserRepository{}
-	roomService := &app.InMemoryRoomRepository{
+	roomService := &app.DefaultRoomService{
 		make(map[*app.User][]app.RoomI),
 	}
 	userClientService := app.NewInMemoryUserClientService()
@@ -129,7 +129,7 @@ func AUserGetsAnErrorResponseWhenRoomIdPayloadIsInvalid() roomTest {
 
 	user := &(app.User{"U1"})
 	userRepository := &app.InMemoryUserRepository{}
-	roomService := &app.InMemoryRoomRepository{
+	roomService := &app.DefaultRoomService{
 		make(map[*app.User][]app.RoomI),
 	}
 
@@ -159,7 +159,7 @@ func AUserGetsAnErrorResponseWhenUserCanNotJoinRoom() roomTest {
 
 	user := &(app.User{"U1"})
 	userRepository := &app.InMemoryUserRepository{}
-	roomService := &app.InMemoryRoomRepository{
+	roomService := &app.DefaultRoomService{
 		map[*app.User][]app.RoomI{
 			user: []app.RoomI{
 				app.NewDefaultRoom("r1", "Room1", nil),
@@ -192,7 +192,7 @@ func AUserGetsAnErrorResponseWhenUserTrysToJoinARoom() roomTest {
 
 	user := &(app.User{"U1"})
 	userRepository := &app.InMemoryUserRepository{}
-	inMemRoomRepo := &app.InMemoryRoomRepository{
+	inMemRoomRepo := &app.DefaultRoomService{
 		map[*app.User][]app.RoomI{
 			user: []app.RoomI{
 				app.NewDefaultRoom("r1", "Room1", nil),
@@ -217,10 +217,10 @@ func AUserGetsAnErrorResponseWhenUserTrysToJoinARoom() roomTest {
 }
 
 type roomRepositoryStub struct {
-	*app.InMemoryRoomRepository
+	*app.DefaultRoomService
 }
 
-// Overide the app.InMemoryRoomRepository AddUserClient to return error
+// Overide the app.DefaultRoomService AddUserClient to return error
 func (r *roomRepositoryStub) AddUserClient(userClient app.UserClient, roomId string) error {
 	return errors.New("Add User Error")
 }

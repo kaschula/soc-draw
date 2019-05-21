@@ -79,7 +79,7 @@ func ALobbyCanGetAUserRequestAndSendUserResponseWithRoomDataSetUp() testData {
 	roomOne := app.NewDefaultRoom("r1", "Room1", nil)
 	roomTwo := app.NewDefaultRoom("r2", "Room2", nil)
 
-	roomService := &app.InMemoryRoomRepository{
+	roomService := &app.DefaultRoomService{
 		map[*app.User][]app.RoomI{
 			user: []app.RoomI{roomOne, roomTwo},
 		},
@@ -114,7 +114,7 @@ func AnErrorResponseIsSentToTheClientWhenUserCantBeResolvedSetUp() testData {
 		map[string]*app.User{},
 	}
 
-	roomService := &app.InMemoryRoomRepository{}
+	roomService := &app.DefaultRoomService{}
 
 	userClientService := UserClientServiceStub{0, nil}
 
@@ -147,7 +147,7 @@ func AnErrorResponseIsSentToTheClientWhenLobbyDataCantBeResolvedSetUp() testData
 		},
 	}
 
-	roomService := &app.InMemoryRoomRepository{}
+	roomService := &app.DefaultRoomService{}
 
 	userClientService := UserClientServiceStub{0, nil}
 
@@ -183,7 +183,7 @@ func AnErrorResponseIsSentToTheClientWhenUserClientCantBeCreatedSetUp() testData
 	roomOne := app.NewDefaultRoom("r1", "Room1", nil)
 	roomTwo := app.NewDefaultRoom("r2", "Room2", nil)
 
-	roomService := &app.InMemoryRoomRepository{
+	roomService := &app.DefaultRoomService{
 		map[*app.User][]app.RoomI{
 			user: []app.RoomI{roomOne, roomTwo},
 		},

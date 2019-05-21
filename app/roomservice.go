@@ -12,14 +12,14 @@ type RoomService interface {
 }
 
 func NewDefaultRoomService(userRooms map[*User][]RoomI) RoomService {
-	return &InMemoryRoomRepository{userRooms}
+	return &DefaultRoomService{userRooms}
 }
 
-type InMemoryRoomRepository struct {
+type DefaultRoomService struct {
 	UserRooms map[*User][]RoomI
 }
 
-func (r *InMemoryRoomRepository) GetRooms(user *User) ([]RoomI, error) {
+func (r *DefaultRoomService) GetRooms(user *User) ([]RoomI, error) {
 	rooms, ok := r.UserRooms[user]
 	if !ok || rooms == nil {
 		return nil, errors.New("Unable to resolve User's Rooms")
@@ -28,7 +28,7 @@ func (r *InMemoryRoomRepository) GetRooms(user *User) ([]RoomI, error) {
 	return rooms, nil
 }
 
-func (r *InMemoryRoomRepository) GetRoom(user *User, roomId string) (RoomI, error) {
+func (r *DefaultRoomService) GetRoom(user *User, roomId string) (RoomI, error) {
 	var room RoomI
 	for _, r := range r.UserRooms[user] {
 		if r.GetID() == roomId {
@@ -41,7 +41,7 @@ func (r *InMemoryRoomRepository) GetRoom(user *User, roomId string) (RoomI, erro
 	return room, nil
 }
 
-func (r *InMemoryRoomRepository) CanUserJoin(userClient UserClient, roomId string) bool {
+func (r *DefaultRoomService) CanUserJoin(userClient UserClient, roomId string) bool {
 	user := userClient.GetUser()
 
 	rooms, err := r.GetRooms(user)
@@ -58,7 +58,7 @@ func (r *InMemoryRoomRepository) CanUserJoin(userClient UserClient, roomId strin
 	return false
 }
 
-func (rs *InMemoryRoomRepository) AddUserClient(client UserClient, roomId string) error {
+func (rs *DefaultRoomService) AddUserClient(client UserClient, roomId string) error {
 	room, err := rs.GetRoom(client.GetUser(), roomId)
 
 	// fmt.Println(room)

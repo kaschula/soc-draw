@@ -1,5 +1,7 @@
 package app
 
+import "fmt"
+
 type RoomApplication interface {
 	// Give a room this method when a room is ready to begin
 	// This method should set up inital data required for an application and broadcast to clients
@@ -48,4 +50,14 @@ func (app *SimpleRoomApplication) Run() {
 
 type Prints interface {
 	Printf(format string, v ...interface{})
+}
+
+type SimpleLogger struct{}
+
+func NewSimpleLogger() *SimpleLogger {
+	return &SimpleLogger{}
+}
+
+func (l *SimpleLogger) Printf(format string, v ...interface{}) {
+	fmt.Printf(format, v...)
 }
