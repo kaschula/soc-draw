@@ -1,61 +1,58 @@
-
-let MessageBus
-
-(()=> {
-    function BuildMessageBus(app, uiService) {
-        // ^ change app to LobbyClient
+((container)=> {
+    function MessageBus(lobby, uiService, messageFactory, roomApplication) {
         function userSocketCreated() {
-            // Should probably do a null check on the app
             uiService.replaceUserInputWithLoading()
             uiService.hideMessageBoard()
-            app.getSocket().send(joinLobbyRequest())
+            lobby.getSocket().send(messageFactory.joinLobbyRequest(lobby.getGlobalUsername()))
         }
         
         function receivedUserLobbyData(payload) {
             lobbyData = JSON.parse(payload)
         
-            app.setUser(lobbyData.User)
+            lobby.setUser(lobbyData.User)
             uiService.displayRooms(lobbyData.Rooms)
             uiService.showRooms()
         
-            uiService.displayUser(app.getUser()) 
+            uiService.displayUser(lobby.getUser()) 
         }
         
         function receivedUserJoinedRoom(payload) {
-            console.log("receivedUserJoinedRoom", payload)
-        
             const roomId = JSON.parse(payload).RoomId
-            console.log("receivedUserLobbyData():: roomId", roomId)
             if (!roomId) {
                 return // handle error
             }
         
-            app.setUserJoinedRoom(roomId)
-            app.setCurrentRoomId(roomId)
+            lobby.setUserJoinedRoom(roomId)
+            lobby.setCurrentRoomId(roomId)
         
             uiService.currentRoomUpdated(roomId)
             uiService.showCurrentRoom()
         
-            
-            if (app.roomIsInitialisedAndStateExits(roomId)) {
-                uiService.initialiseApp(roomStateContainer[roomId])
+            if (lobby.roomIsInitialisedAndStateExists(roomId)) {
+                roomApplication.update(lobby.getRoomState(roomId))
                 return
             }
         
-            console.log('receivedUserJoinedRoom(). room not set up, requesting room state')
             uiService.currentRoomWaitingForStatus()
-            app.send(latestRoomStateRequest(roomId))
+            lobby.send(messageFactory.latestRoomStateRequest(roomId))
         }
         
+        function appRoomMessage(roomId, payload) {
+            const broadcast = JSON.parse(payload)
+
+            if(!lobby.isCurrentRoom(roomId)) {
+                return
+            }
+
+            uiService.showRoomMessage(broadcast.message)
+        }
+
         function appRoomBroadcast(roomId, payload) {
-            console.log('appRoomBroadcast():: roomId, payload', roomId, payload)
-            if (!app.isRoomInitialised(roomId)) {
+            if (!lobby.isRoomInitialised(roomId)) {
                 console.log('appRoomBroadcast() ERROR: room not initialised')
                 return // make socket request for inital event
             }
         
-        
-            console.log("appRoomBroadcast::roomId", roomId)
             if (!roomId) {
                 return console.log("Room ID not given, Invalid Room Broadcast")
             }
@@ -64,35 +61,35 @@ let MessageBus
         
             if (broadcast.running === "false") {
                 console.log("Room is not running")
-                uiService.showRoomMessage(broadcast.message)
+                uiService.showRoomMessage(broadcast.message, true)
             }
         
             const {state} = broadcast
-            console.log("appRoomBroadcast: state", state)
         
-            if (app.isCurrentRoom(roomId)) {
-                // RoomApplication::SimpleChatApplication
-                appUpdate(state)
+            if (lobby.isCurrentRoom(roomId)) {
+                roomApplication.update(state)
             }
-        
-            app.setRoomState(roomId, state)
+
+            lobby.setRoomState(roomId, state)
         }
         
-        function appRoomBroadcastRoomStarted(roomId, payload) {
-            console.log("appRoomBroadcastRoomStarted() ")
+        function appRoomBroadcastInit(roomId, payload) {
             const broadcast = JSON.parse(payload)
-        
-            console.log("setting up App Inital State in Room", roomId, broadcast)
         
             if (!broadcast.state) {
                 console.log("Broadcast did not return state")
+                return 
+            }
+
+            if (lobby.roomIsInitialisedAndStateExists(roomId)) {
+                return
             }
         
             uiService.initialiseAppWindow()
-            // This is RoomApplication
-            appInitalise(broadcast.state)
-            app.setRoomState(roomId, broadcast.state)
-            app.setRoomInitialised(roomId)
+            roomApplication.initialise(broadcast.state)
+            lobby.setRoomState(roomId, broadcast.state)
+            lobby.setRoomInitialised(roomId)
+            uiService.removeRoomMessages()
         }
     
         function handleError(payload) {
@@ -103,12 +100,13 @@ let MessageBus
                 return 
             }
         
-            app.getSocket().close()
+            lobby.getSocket().close()
             uiService.showUserForm()
         }
     
-        // chnage msg -> message
+        // change msg -> message
         function dispatch(msg) {
+            console.log("MessageBus::dispatch msg", msg)
             switch(msg.Type) {
                 case "CREATED": 
                     userSocketCreated()
@@ -122,8 +120,11 @@ let MessageBus
                 case "ROOM_BROADCAST":
                     appRoomBroadcast(msg.RoomID, msg.Payload)
                     return
+                case "ROOM_BROADCAST_MESSAGE":
+                    appRoomMessage(msg.RoomID, msg.Payload)
+                    return
                 case "ROOM_BROADCAST_INIT":
-                    appRoomBroadcastRoomStarted(msg.RoomID, msg.Payload)
+                    appRoomBroadcastInit(msg.RoomID, msg.Payload)
                     return
                 case "ERROR": 
                     handleError(msg.Payload)
@@ -145,5 +146,5 @@ let MessageBus
         }
     }
     
-    MessageBus = BuildMessageBus
-})()
+    container.MessageBus = MessageBus
+})(modules)

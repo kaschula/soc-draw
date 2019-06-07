@@ -117,6 +117,10 @@ func (c *ClientStub) Subscribe(b app.Broadcasts) {
 
 }
 
+func (c *ClientStub) SubscribeLobby(l app.Lobby) {
+
+}
+
 type LobbyStub struct {
 	clients map[string]app.IsClient
 }
@@ -134,6 +138,22 @@ func (lobby *LobbyStub) GetClient(id string) (app.IsClient, error) {
 	return client, nil
 }
 
-func (l *LobbyStub) Broadcast(client app.IsClient, message app.ClientAppMessage) {
+func (l *LobbyStub) Broadcast(message app.ClientAppMessage) {
 	//
+}
+
+func (l *LobbyStub) GetID() string {
+	return "Lobby"
+}
+
+func (l *LobbyStub) Remove(c app.IsClient) {
+
+}
+
+func (l *LobbyStub) ResolveUserClient(c app.IsClient) (app.UserClient, error) {
+	return nil, nil
+}
+
+func (l *LobbyStub) RemoveUserClient(uc app.UserClient) {
+
 }

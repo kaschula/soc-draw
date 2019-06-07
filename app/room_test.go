@@ -1,6 +1,7 @@
 package app_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/kaschula/socket-server/app"
@@ -11,20 +12,8 @@ import (
 func TestARoomStartsOnceEnoughClientHaveBeenAddedAndMessagesCanBeBroadcast(t *testing.T) {
 	roomApp := NewRoomAppStub()
 	user := app.NewUser("1")
-	clientOne := &(stubs.ClientStub{
-		"client:1",
-		[]app.ClientResponse{},
-		make(chan app.AppMessage),
-		make(chan bool),
-		[]app.Broadcasts{},
-	})
-	clientTwo := &(stubs.ClientStub{
-		"client:2",
-		[]app.ClientResponse{},
-		make(chan app.AppMessage),
-		make(chan bool),
-		[]app.Broadcasts{},
-	})
+	clientOne := newClientStub("client:1")
+	clientTwo := newClientStub("client:2")
 
 	userClientOne := app.NewUserClient(clientOne, user)
 	userClientTwo := app.NewUserClient(clientTwo, user)
@@ -35,7 +24,7 @@ func TestARoomStartsOnceEnoughClientHaveBeenAddedAndMessagesCanBeBroadcast(t *te
 
 	message := app.AppMessage{app.ClientResponseTypes().ROOM_BROADCAST, "Payload"}
 
-	room.Broadcast(nil, app.ClientAppMessage{message, "1"})
+	room.Broadcast(app.ClientAppMessage{nil, message})
 
 	Equal(t, clientOne.WrittenMessages[0].Payload, "Payload", "Client One Did not recieve correct Payload")
 	Equal(t, clientOne.WrittenMessages[0].Type, app.ClientResponseTypes().ROOM_BROADCAST, "Client One Did not recieve correct Type")
@@ -46,20 +35,8 @@ func TestARoomStartsOnceEnoughClientHaveBeenAddedAndMessagesCanBeBroadcast(t *te
 func TestARoomDoesNotBroadCastToClientsIfNotEnoughInRoom(t *testing.T) {
 	roomApp := NewRoomAppStub()
 	user := app.NewUser("1")
-	clientOne := &(stubs.ClientStub{
-		"client:1",
-		[]app.ClientResponse{},
-		make(chan app.AppMessage),
-		make(chan bool),
-		[]app.Broadcasts{},
-	})
-	clientTwo := &(stubs.ClientStub{
-		"client:2",
-		[]app.ClientResponse{},
-		make(chan app.AppMessage),
-		make(chan bool),
-		[]app.Broadcasts{},
-	})
+	clientOne := newClientStub("client:1")
+	clientTwo := newClientStub("client:2")
 
 	userClientOne := app.NewUserClient(clientOne, user)
 	userClientTwo := app.NewUserClient(clientTwo, user)
@@ -68,42 +45,33 @@ func TestARoomDoesNotBroadCastToClientsIfNotEnoughInRoom(t *testing.T) {
 	room.AddUserClient(userClientOne)
 
 	messageOne := app.AppMessage{app.ClientResponseTypes().ROOM_BROADCAST, "First Payload"}
-	room.Broadcast(nil, app.ClientAppMessage{messageOne, "1"})
+	room.Broadcast(app.ClientAppMessage{nil, messageOne})
 
 	room.AddUserClient(userClientTwo)
 
 	messageTwo := app.AppMessage{app.ClientResponseTypes().ROOM_BROADCAST, "Second Payload"}
-	room.Broadcast(nil, app.ClientAppMessage{messageTwo, "1"})
+	room.Broadcast(app.ClientAppMessage{nil, messageTwo})
 
-	Equal(t, clientOne.WrittenMessages[0].Payload, "Second Payload", "Client One Did not recieve correct Payload")
-	Equal(t, clientTwo.WrittenMessages[0].Payload, "Second Payload", "Client Two Did not recieve correct Payload")
+	Equal(t, true, strings.Contains(clientOne.WrittenMessages[0].Payload, `"running":"false"`),
+		"Client One Did not recieve correct Payload",
+	)
+	Equal(t, clientOne.WrittenMessages[1].Payload, "Second Payload", "Incorrect Payload")
+	Equal(t, clientTwo.WrittenMessages[0].Payload, "Second Payload", "Incorrect Payload")
 }
 
 func TestThatAMessageWrittenToARoomIsPassedToTheRoomApp(t *testing.T) {
 	roomApp := NewRoomAppStub()
 	user := app.NewUser("1")
-	clientOne := &(stubs.ClientStub{
-		"client:1",
-		[]app.ClientResponse{},
-		make(chan app.AppMessage),
-		make(chan bool),
-		[]app.Broadcasts{},
-	})
-	clientTwo := &(stubs.ClientStub{
-		"client:2",
-		[]app.ClientResponse{},
-		make(chan app.AppMessage),
-		make(chan bool),
-		[]app.Broadcasts{},
-	})
+	clientOne := newClientStub("client:1")
+	clientTwo := newClientStub("client:2")
 
 	userClientOne := app.NewUserClient(clientOne, user)
 	userClientTwo := app.NewUserClient(clientTwo, user)
 
 	room := app.NewDefaultRoom("1", "R2", roomApp)
 	message := app.ClientAppMessage{
+		nil,
 		app.AppMessage{app.ClientResponseTypes().ROOM_BROADCAST, "Payload"},
-		"1",
 	}
 	// should start room app
 	room.AddUserClient(userClientOne)
@@ -135,4 +103,15 @@ func (a *RoomAppStub) Start(room app.RoomI) {
 func (a *RoomAppStub) WriteMessage(message app.RoomMessage) {
 	a.writeCalled++
 	a.written = append(a.written, &message)
+}
+
+func newClientStub(id string) *stubs.ClientStub {
+	return &(stubs.ClientStub{
+		id,
+		[]app.ClientResponse{},
+		make(chan app.AppMessage),
+		make(chan bool),
+		[]app.Broadcasts{},
+		nil,
+	})
 }

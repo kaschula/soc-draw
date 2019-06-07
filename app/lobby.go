@@ -62,13 +62,19 @@ func (l *RoomLobby) GetClient(id string) (IsClient, error) {
 	return client, nil
 }
 
-func (l *RoomLobby) Broadcast(client IsClient, message ClientAppMessage) {
+func (l *RoomLobby) Broadcast(message ClientAppMessage) {
 	fmt.Println("Lobby::Broadcast()")
 	// This may not be needed any more as this check is don't in the client
 	if !IsLobbyMessage(message.Type) {
 		// To Test, use Client repo stub to test if the Client repository was called
 		// make lobby_test unit test
 		fmt.Printf("Message type of %v is not Lobby Message \n", message.Type)
+		return
+	}
+
+	client, err := message.GetClient()
+	if err != nil {
+		fmt.Println("Error: No client resolved from message")
 		return
 	}
 

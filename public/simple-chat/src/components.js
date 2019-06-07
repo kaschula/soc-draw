@@ -1,7 +1,5 @@
-let ComponentLibrary
-
-(() => {
-    function ComponentLibraryBuilder() {
+((container) => {
+    function ComponentLibrary() {
         function userFormComponent() {
             return `
                 <form id="entry-form">
@@ -12,7 +10,7 @@ let ComponentLibrary
             `
         }
         
-        function roomComponent(room) {
+        function roomSelectComponent(room) {
             return `
                 <div class="room">
                     <span>${room.Name}</span>
@@ -34,9 +32,10 @@ let ComponentLibrary
             )
         }
         
+        // can delete this
         function roomWaitingComponent() {
             return (`
-                <p>Request latest room state.... </p>
+                <p id="room-waiting-message" >Request latest room state.... </p>
             `)
         }
         
@@ -54,7 +53,7 @@ let ComponentLibrary
         }
     
         this.userFormComponent = userFormComponent
-        this.roomComponent = roomComponent
+        this.roomSelectComponent = roomSelectComponent
         this.userComponent = userComponent
         this.messageComponent = messageComponent
         this.roomWaitingComponent = roomWaitingComponent
@@ -62,5 +61,5 @@ let ComponentLibrary
         this.applicationWindowComponent = applicationWindowComponent
     }
 
-    ComponentLibrary = ComponentLibraryBuilder
-})()
+    container.ComponentLibrary = ComponentLibrary
+})(modules)

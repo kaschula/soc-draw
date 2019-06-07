@@ -103,11 +103,8 @@ The payload should be untouched and what ever is given
 This will help when the room app is returning data
 */
 
-func (r *BaseRoom) Broadcast(client IsClient, message ClientAppMessage) {
-	fmt.Printf("Room::Broadcast() clientId: %#v | message: %#v \n", client, message)
-
+func (r *BaseRoom) Broadcast(message ClientAppMessage) {
 	if !r.isRunning() {
-		// This working
 		fmt.Println("Room is not running writing to client")
 		for _, userClient := range r.clients {
 			userClient.GetClient().WriteJson(NewRoomWaitingToStart(r.GetID()))
@@ -117,17 +114,24 @@ func (r *BaseRoom) Broadcast(client IsClient, message ClientAppMessage) {
 
 	messageType := message.Type
 
+	// 1* remove this first if
 	if !isRoomType(messageType) {
 		fmt.Println("Room::Broadcast(), message type note rooms: ", messageType)
 		return
 	}
 
 	if isRoomRequest(messageType) {
-		fmt.Printf("Room::Broadcast() Is room Request \n")
 		r.WriteMessage(message)
 		return
 	}
 
+	// 1* add this, if request goes to app, if broadcast goes to clients, ignore everything else
+	// if isRoomBroadcast(messageType) {
+	// 	r.broadcast(message)
+	// 	return
+	// }
+
+	// *1 remove this when adding extra if
 	r.broadcast(message)
 }
 
@@ -141,6 +145,7 @@ func (r *BaseRoom) broadcast(message ClientAppMessage) {
 	}
 }
 
+// Todo: should this be public????
 func (r *BaseRoom) WriteMessage(message ClientAppMessage) {
 	fmt.Println("Room:: WriteMessage()::message", message)
 	if !r.isRunning() {
@@ -180,4 +185,8 @@ func (r *BaseRoom) RemoveUserClient(uc UserClient) {
 
 func isRoomRequest(messageType string) bool {
 	return messageType == "ROOM_REQUEST"
+}
+
+func isRoomBroadcast(messageType string) bool {
+	return messageType == "ROOM_BROADCAST"
 }

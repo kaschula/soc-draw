@@ -220,7 +220,7 @@ func (c *ClientStub2) GetID() string {
 func (c *ClientStub2) Listen() {
 	for {
 		appMessage := c.ReadMessage()
-		message := app.ClientAppMessage{appMessage, c.GetID()}
+		message := app.ClientAppMessage{c, appMessage}
 
 		c.broadcastToObservers(message)
 	}
@@ -228,7 +228,7 @@ func (c *ClientStub2) Listen() {
 
 func (c *ClientStub2) broadcastToObservers(message app.ClientAppMessage) {
 	for _, broadcaster := range c.broadcasters {
-		broadcaster.Broadcast(c, message)
+		broadcaster.Broadcast(message)
 	}
 
 	c.returnChan <- ""

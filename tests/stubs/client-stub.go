@@ -11,6 +11,7 @@ func NewClientStub(id string) *ClientStub {
 		make(chan app.AppMessage),
 		make(chan bool),
 		[]app.Broadcasts{},
+		nil,
 	}
 }
 
@@ -20,6 +21,7 @@ type ClientStub struct {
 	SendChan        chan app.AppMessage
 	ReturnChan      chan bool
 	Broadcasters    []app.Broadcasts
+	Lobby           app.Lobby
 }
 
 func (c *ClientStub) GetID() string {
@@ -29,7 +31,7 @@ func (c *ClientStub) GetID() string {
 func (c *ClientStub) Listen() {
 	for {
 		appMessage := c.ReadMessage()
-		message := app.ClientAppMessage{appMessage, c.GetID()}
+		message := app.ClientAppMessage{c, appMessage}
 
 		c.publish(message)
 	}
@@ -38,7 +40,7 @@ func (c *ClientStub) Listen() {
 func (c *ClientStub) publish(message app.ClientAppMessage) {
 	for _, broadcaster := range c.Broadcasters {
 		// should this be a in a routine
-		broadcaster.Broadcast(c, message)
+		broadcaster.Broadcast(message)
 	}
 
 	c.ReturnChan <- true
@@ -62,6 +64,10 @@ func (c *ClientStub) ReadMessage() app.AppMessage {
 
 func (c *ClientStub) Subscribe(b app.Broadcasts) {
 	c.Broadcasters = append(c.Broadcasters, b)
+}
+
+func (c *ClientStub) SubscribeLobby(l app.Lobby) {
+	c.Lobby = l
 }
 
 func (c *ClientStub) WaitForReturnChan() bool {

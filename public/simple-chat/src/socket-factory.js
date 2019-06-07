@@ -1,7 +1,5 @@
-let SocketFactory;
-
-(() => {
-    function socketFactory(messageBus, lobbyClient) {
+((container) => {
+    function SocketFactory(messageBus, lobbyClient, messageFactory) {
         this.createConnection = function (url) {
             const ws = new WebSocket(`ws://${url}`)
             attachSocketHandlers(ws)
@@ -26,7 +24,8 @@ let SocketFactory;
         }
         
         function onMessage(messageEvent) {
-            const msg = unmarshallAppMessageJson(messageEvent.data);
+            console.log("socket on message")
+            const msg = messageFactory.unmarshallAppMessageJson(messageEvent.data);
             
             try {
                 messageBus.processSocketData(msg)
@@ -40,5 +39,5 @@ let SocketFactory;
         }
     }
 
-    SocketFactory = socketFactory
-})()
+    container.SocketFactory = SocketFactory 
+})(modules)

@@ -5,10 +5,6 @@ import (
 	"fmt"
 )
 
-// A struct that holds websocket client
-// type Client struct {
-// }
-
 type IsClient interface {
 	GetID() string
 	Listen()
@@ -57,7 +53,7 @@ func (c *DefaultClient) Listen() {
 		if IsLobbyMessage(msg.Type) {
 			fmt.Println("Client::Listen() message is lobby type")
 			// creating the client message is repeated below
-			c.lobby.Broadcast(c, NewClientAppMessage(c.GetID(), msg))
+			c.lobby.Broadcast(NewClientAppMessage(c, msg))
 		}
 
 		roomId := getRoomId(msg.Payload)
@@ -65,7 +61,7 @@ func (c *DefaultClient) Listen() {
 		for _, broadcaster := range c.broadcasters {
 			fmt.Println("Broadcast ID", broadcaster.GetID())
 			if broadcaster.GetID() == roomId {
-				broadcaster.Broadcast(c, NewClientAppMessage(c.GetID(), msg))
+				broadcaster.Broadcast(NewClientAppMessage(c, msg))
 			}
 		}
 	}

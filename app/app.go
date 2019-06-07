@@ -35,10 +35,3 @@ func (a *App) createSocketFromRequest(res http.ResponseWriter, req *http.Request
 func (a *App) addClientToLobby(client IsClient) {
 	a.lobby.AddClient(client)
 }
-
-// Might need to add the 'AddUserClient()' to this interface
-type Broadcasts interface {
-	Broadcast(client IsClient, message ClientAppMessage)
-	GetID() string
-	RemoveUserClient(UserClient)
-}

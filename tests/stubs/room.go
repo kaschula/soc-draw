@@ -30,7 +30,7 @@ func (r *RoomStub) GetID() string {
 	return r.ID
 }
 
-func (r *RoomStub) Broadcast(c app.IsClient, message app.ClientAppMessage) {
+func (r *RoomStub) Broadcast(message app.ClientAppMessage) {
 	r.BroadcastCalled++
 	r.BroadcastData = append(r.BroadcastData, message)
 	r.BroadcastReturn <- true
@@ -38,19 +38,5 @@ func (r *RoomStub) Broadcast(c app.IsClient, message app.ClientAppMessage) {
 
 func (r *RoomStub) WriteMessage(message app.ClientAppMessage) {}
 
-type UserClientStub struct {
-	user   *app.User
-	client app.IsClient
-}
-
-func (u *UserClientStub) GetUser() *app.User {
-	return u.user
-}
-
-func (u *UserClientStub) GetClient() app.IsClient {
-	return u.client
-}
-
-func (u *UserClientStub) WriteJson(client app.ClientResponse) error {
-	return nil
+func (r *RoomStub) RemoveUserClient(us app.UserClient) {
 }

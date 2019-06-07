@@ -10,18 +10,22 @@ import (
 )
 
 func main() {
-
 	appClientPath := "public/simple-chat"
-	appServer := socketServer.NewSimpleRoomApplication(socketServer.NewSimpleLogger())
+	appServer := NewSimpleChatApplication()
 	go appServer.Run()
 
 	// Data
 
-	userOne, userTwo := &socketServer.User{"U:1"}, &socketServer.User{"U:2"}
+	userOne := &socketServer.User{"U:1"}
+	userTwo := &socketServer.User{"U:2"}
+	userThree := &socketServer.User{"U:3"}
+	userFour := &socketServer.User{"U:4"}
 
 	users := map[string]*socketServer.User{
-		userOne.ID: userOne,
-		userTwo.ID: userTwo,
+		userOne.ID:   userOne,
+		userTwo.ID:   userTwo,
+		userThree.ID: userThree,
+		userFour.ID:  userFour,
 	}
 
 	globalRooms := []socketServer.RoomI{
@@ -30,8 +34,10 @@ func main() {
 	}
 
 	roomRepository := map[*socketServer.User][]socketServer.RoomI{
-		userOne: globalRooms,
-		userTwo: globalRooms,
+		userOne:   globalRooms,
+		userTwo:   globalRooms,
+		userThree: globalRooms,
+		userFour:  globalRooms,
 	}
 
 	app := newApp(users, roomRepository)

@@ -46,19 +46,28 @@
             <div id="rooms-container" class="col-md-12"><p>room container <span id="current-room-name">No Room Selected</span></p></div>
         </div>
         <div class="row">
-            <div id="current-room" class="col-md-12"></div>
+            <div id="current-room" class="col-md-12">
+                <div id="current-room-log"></div>
+            </div>
         </div>
     </div>
 
     <script src="lib/js/modernizr.min.js"></script>
     <script src="lib/js/jquery-3.3.1.min.js"></script>
     <!--Modules-->
+    <script src="src/modules.js"></script>    
     <script src="src/soc-draw-lobby-client.js"></script>    
     <script src="src/components.js"></script>    
     <script src="src/message-bus.js"></script>    
     <script src="src/ui-service.js"></script>    
     <script src="src/socket-factory.js"></script>    
+    <script src="src/soc-draw-lobby-controller.js"></script>    
+    <script src="src/message-factory.js"></script>    
+    <script src="src/room-application.js"></script>    
     <!--End Modules-->
+
+    <!-- Room Application-->
+    <script src="src/simple-chat-application.js"></script>    
 
     <script src="src/main.js"></script>    
 </body>

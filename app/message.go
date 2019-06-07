@@ -1,10 +1,13 @@
 package app
 
+import "errors"
+
 // These are point less as before they are broadcasted they change to ROOM_BROADCAST Response
 const (
-	MESSAGE_TYPE_ROOM         = "ROOM"
-	MESSAGE_TYPE_ROOM_WELCOME = "ROOM_WELCOME" // Delete this
-	// MESSAGE_TYPE_ROOM_WELCOME = "ROOM_"
+	MESSAGE_TYPE_ROOM                = "ROOM"                // delete this
+	MESSAGE_TYPE_ROOM_BROADCAST      = "ROOM_BROADCAST"      // this a duplicate
+	MESSAGE_TYPE_ROOM_BROADCAST_INIT = "ROOM_BROADCAST_INIT" // this a duplicate
+	MESSAGE_TYPE_ROOM_WELCOME        = "ROOM_WELCOME"        // Delete this
 )
 
 func NewAppMessage(messageType, payload string) AppMessage {
@@ -37,10 +40,19 @@ func welcomeMessage() ClientResponse {
 }
 
 type ClientAppMessage struct {
+	Client IsClient // Change this to be the Client, This means Broadcast() just takes a Message
 	AppMessage
-	ClientID string // Change this to be the Client, This means Broadcast() just takes a Message
+	// ClientID string // Change this to be the Client, This means Broadcast() just takes a Message
 }
 
-func NewClientAppMessage(clientId string, appMessage AppMessage) ClientAppMessage {
-	return ClientAppMessage{appMessage, clientId}
+func (c ClientAppMessage) GetClient() (IsClient, error) {
+	if c.Client == nil {
+		return nil, errors.New("Client Can not be resolved")
+	}
+
+	return c.Client, nil
+}
+
+func NewClientAppMessage(c IsClient, m AppMessage) ClientAppMessage {
+	return ClientAppMessage{c, m}
 }

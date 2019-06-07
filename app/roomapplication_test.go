@@ -12,7 +12,7 @@ func TestThatASimpleRoomAppWritesMessagesToOneRoom(t *testing.T) {
 	logger := &PrintsStub{0}
 	application := app.NewSimpleRoomApplication(logger)
 	room := stubs.NewRoomStub("room:1", "FirstRoom")
-	appMessage := app.NewAppMessage(app.MESSAGE_TYPE_ROOM, "payload")
+	appMessage := app.NewAppMessage(app.MESSAGE_TYPE_ROOM_BROADCAST, "payload")
 	go application.Run()
 
 	application.WriteMessage(app.NewRoomMessage(room, appMessage.Payload))
@@ -27,17 +27,15 @@ func TestThatASimpleRoomAppStartsRoom(t *testing.T) {
 	logger := &PrintsStub{0}
 	application := app.NewSimpleRoomApplication(logger)
 	room := stubs.NewRoomStub("room:1", "FirstRoom")
-	expectedMessage := app.NewAppMessage(app.MESSAGE_TYPE_ROOM_WELCOME, `{"message":"welcome"}`)
+	expectedMessage := app.NewAppMessage(app.MESSAGE_TYPE_ROOM_BROADCAST_INIT, `{"message":"welcome"}`)
 
 	go application.Start(room)
 	<-room.BroadcastReturn
 
 	Equal(t, len(room.BroadcastData), 1, "Room should have a broadcast message")
-	Equal(t, room.BroadcastData[0].AppMessage, expectedMessage, "Welcome Message Should have been broadcast")
+	Equal(t, room.BroadcastData[0].AppMessage.Type, expectedMessage.Type, "Welcome Message Should have been broadcast")
 }
 
-
-// Replace with stubs version
 type PrintsStub struct {
 	called int
 }

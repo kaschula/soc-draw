@@ -1,7 +1,7 @@
-let SocDrawLobbyClient;
-
-(() => {
-    function SocDrawLobbyClientBuild() {
+((container) => {
+    // Object that handles the Lobby and Room Data 
+    // ?? Should this be a model
+    function SocDrawLobbyClient() {
         // private
         // const uiService = newUIService($);
         const roomStateContainer = {};
@@ -65,7 +65,8 @@ let SocDrawLobbyClient;
             return !!roomStateContainer[roomId]
         }
         
-        this.roomIsInitialisedAndStateExits = function(roomId) {
+        this.roomIsInitialisedAndStateExists = function(roomId) {
+            console.log("roomIsInitialisedAndStateExists::", roomsInitialised[roomId], roomStateContainer[roomId])
             return roomsInitialised[roomId] && !!roomStateContainer[roomId];
         }
         
@@ -82,6 +83,7 @@ let SocDrawLobbyClient;
         }
     
         this.send = function(payload) {
+            console.log("Lobby::send()", payload)
             socket.send(payload)
         }
     
@@ -103,5 +105,5 @@ let SocDrawLobbyClient;
         }
     }
 
-    SocDrawLobbyClient = SocDrawLobbyClientBuild
-})();
+    container.SocDrawLobbyClient = SocDrawLobbyClient
+})(modules);

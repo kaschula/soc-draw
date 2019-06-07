@@ -11,7 +11,7 @@ import (
 func TestThatTheClientCanWriteAMessageToTheSocket(t *testing.T) {
 	socket := NewJsonReaderWriterStub()
 	client := app.NewDefaultClient("C:1", socket)
-	message := app.ClientResponse{"Type", "Payload"}
+	message := app.ClientResponse{"Type", "Payload", "R:1"}
 
 	client.WriteJson(message)
 
@@ -82,7 +82,14 @@ type BroadcasterStub struct {
 	doneChan   chan bool
 }
 
-func (b *BroadcasterStub) Broadcast(client app.IsClient, message app.ClientAppMessage) {
+func (b *BroadcasterStub) Broadcast(message app.ClientAppMessage) {
 	b.broadcasts = append(b.broadcasts, message)
 	b.doneChan <- true
+}
+
+func (b *BroadcasterStub) GetID() string {
+	return ""
+}
+
+func (b *BroadcasterStub) RemoveUserClient(us app.UserClient) {
 }
