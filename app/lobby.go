@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	// "github.com/kaschula/socket-server/app"
 )
 
 type Lobby interface {

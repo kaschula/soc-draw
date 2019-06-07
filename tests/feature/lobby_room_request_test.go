@@ -65,6 +65,7 @@ func AUserRequestToJoinARoomItHasAccessTo() roomTest {
 		make(chan app.AppMessage),
 		make(chan bool),
 		[]app.Broadcasts{},
+		nil,
 	})
 
 	user := &(app.User{"U1"})
@@ -87,7 +88,7 @@ func AUserRequestToJoinARoomItHasAccessTo() roomTest {
 		roomService,
 		userClientService,
 		app.ClientResponseTypes().USER_JOINED_ROOM,
-		"success",
+		`{"RoomId":"r1"}`,
 	}
 }
 
@@ -98,6 +99,7 @@ func AUserGetsAnErrorResponseWhenUserClientCanNotBeResolved() roomTest {
 		make(chan app.AppMessage),
 		make(chan bool),
 		[]app.Broadcasts{},
+		nil,
 	})
 
 	userRepository := &app.InMemoryUserRepository{}
@@ -125,6 +127,7 @@ func AUserGetsAnErrorResponseWhenRoomIdPayloadIsInvalid() roomTest {
 		make(chan app.AppMessage),
 		make(chan bool),
 		[]app.Broadcasts{},
+		nil,
 	})
 
 	user := &(app.User{"U1"})
@@ -155,6 +158,7 @@ func AUserGetsAnErrorResponseWhenUserCanNotJoinRoom() roomTest {
 		make(chan app.AppMessage),
 		make(chan bool),
 		[]app.Broadcasts{},
+		nil,
 	})
 
 	user := &(app.User{"U1"})
@@ -188,6 +192,7 @@ func AUserGetsAnErrorResponseWhenUserTrysToJoinARoom() roomTest {
 		make(chan app.AppMessage),
 		make(chan bool),
 		[]app.Broadcasts{},
+		nil,
 	})
 
 	user := &(app.User{"U1"})

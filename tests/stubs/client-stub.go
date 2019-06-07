@@ -1,6 +1,8 @@
 package stubs
 
 import (
+	"strings"
+
 	"github.com/kaschula/socket-server/app"
 )
 
@@ -34,16 +36,20 @@ func (c *ClientStub) Listen() {
 		message := app.ClientAppMessage{c, appMessage}
 
 		c.publish(message)
+		c.ReturnChan <- true
 	}
 }
 
 func (c *ClientStub) publish(message app.ClientAppMessage) {
+	if strings.Contains(message.Type, "LOBBY") {
+		c.Lobby.Broadcast(message)
+		return
+	}
+
 	for _, broadcaster := range c.Broadcasters {
 		// should this be a in a routine
 		broadcaster.Broadcast(message)
 	}
-
-	c.ReturnChan <- true
 }
 
 func (c *ClientStub) WriteJson(message app.ClientResponse) error {

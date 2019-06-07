@@ -12,10 +12,11 @@ type ClientResponse struct {
 }
 
 type ResponseTypes struct {
-	ERROR            string
-	USER_LOBBY_DATA  string
-	USER_JOINED_ROOM string
-	ROOM_BROADCAST   string
+	ERROR               string
+	USER_LOBBY_DATA     string
+	USER_JOINED_ROOM    string
+	ROOM_BROADCAST      string
+	ROOM_BROADCAST_INIT string
 }
 
 type ErrorTypes struct {
@@ -31,10 +32,11 @@ type ErrorTypes struct {
 // Find A better way of a const object
 func ClientResponseTypes() ResponseTypes {
 	return ResponseTypes{
-		ERROR:            "ERROR",
-		USER_LOBBY_DATA:  "USER_LOBBY_DATA",
-		USER_JOINED_ROOM: "USER_JOINED_ROOM",
-		ROOM_BROADCAST:   "ROOM_BROADCAST",
+		ERROR:               "ERROR",
+		USER_LOBBY_DATA:     "USER_LOBBY_DATA",
+		USER_JOINED_ROOM:    "USER_JOINED_ROOM",
+		ROOM_BROADCAST:      "ROOM_BROADCAST",
+		ROOM_BROADCAST_INIT: "ROOM_BROADCAST_INIT",
 	}
 }
 

@@ -3,6 +3,7 @@ package app_test
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/kaschula/socket-server/app"
@@ -46,6 +47,7 @@ func runUserRequestTest(test testData) func(t *testing.T) {
 		client.SendMessage(app.MessageTypeLobbyUserJoinRequest, test.messageToSend)
 		// Wait for something to be written
 		<-client.returnChan
+		// <-client.returnChan
 
 		if len(client.writtenMessages) == 0 {
 			t.Fatal("No Messages Written To Client")
@@ -68,6 +70,7 @@ func ALobbyCanGetAUserRequestAndSendUserResponseWithRoomDataSetUp() testData {
 		make(chan app.AppMessage),
 		make(chan string),
 		[]app.Broadcasts{},
+		nil,
 	})
 	user := app.NewUser("UserID124")
 	userRepository := &app.InMemoryUserRepository{
@@ -108,6 +111,7 @@ func AnErrorResponseIsSentToTheClientWhenUserCantBeResolvedSetUp() testData {
 		make(chan app.AppMessage),
 		make(chan string),
 		[]app.Broadcasts{},
+		nil,
 	})
 
 	userRepository := &app.InMemoryUserRepository{
@@ -138,6 +142,7 @@ func AnErrorResponseIsSentToTheClientWhenLobbyDataCantBeResolvedSetUp() testData
 		make(chan app.AppMessage),
 		make(chan string),
 		[]app.Broadcasts{},
+		nil,
 	})
 
 	user := app.NewUser("UserID124")
@@ -171,6 +176,7 @@ func AnErrorResponseIsSentToTheClientWhenUserClientCantBeCreatedSetUp() testData
 		make(chan app.AppMessage),
 		make(chan string),
 		[]app.Broadcasts{},
+		nil,
 	})
 
 	user := app.NewUser("UserID124")
@@ -211,6 +217,7 @@ type ClientStub2 struct {
 	sendChan        chan app.AppMessage
 	returnChan      chan string
 	broadcasters    []app.Broadcasts
+	lobby           app.Lobby
 }
 
 func (c *ClientStub2) GetID() string {
@@ -220,18 +227,12 @@ func (c *ClientStub2) GetID() string {
 func (c *ClientStub2) Listen() {
 	for {
 		appMessage := c.ReadMessage()
+		fmt.Println("Client::Listen()", appMessage)
 		message := app.ClientAppMessage{c, appMessage}
 
-		c.broadcastToObservers(message)
+		c.lobby.Broadcast(message)
+		c.returnChan <- ""
 	}
-}
-
-func (c *ClientStub2) broadcastToObservers(message app.ClientAppMessage) {
-	for _, broadcaster := range c.broadcasters {
-		broadcaster.Broadcast(message)
-	}
-
-	c.returnChan <- ""
 }
 
 func (c *ClientStub2) WriteJson(message app.ClientResponse) error {
@@ -252,6 +253,10 @@ func (c *ClientStub2) ReadMessage() app.AppMessage {
 
 func (c *ClientStub2) Subscribe(b app.Broadcasts) {
 	c.broadcasters = append(c.broadcasters, b)
+}
+
+func (c *ClientStub2) SubscribeLobby(l app.Lobby) {
+	c.lobby = l
 }
 
 func decodePayload(payload string) app.LobbyData {

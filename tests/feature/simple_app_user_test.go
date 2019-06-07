@@ -1,6 +1,7 @@
 package app_test
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -48,8 +49,8 @@ func TestTwoClientsCanJoinTheLobbyAndARoomAndBeginMessagingEachOther(t *testing.
 		lobby.AddClient(clientOne)
 		lobby.AddClient(clientTwo)
 
-		Equal(t, len(clientOne.Broadcasters), 1, "Lobby should have subscribed to client one")
-		Equal(t, len(clientTwo.Broadcasters), 1, "Lobby should have subscribed to client one")
+		Equal(t, lobby, clientOne.Lobby, "Lobby should have subscribed to client one")
+		Equal(t, lobby, clientTwo.Lobby, "Lobby should have subscribed to client one")
 
 		t.Log("User One (ClientOne) request to joins")
 		{
@@ -57,12 +58,12 @@ func TestTwoClientsCanJoinTheLobbyAndARoomAndBeginMessagingEachOther(t *testing.
 			clientOne.SendMessage(app.MessageTypeLobbyUserJoinRequest, `{"user": "1"}`)
 			clientOne.WaitForReturnChan()
 
-			Equal(t, len(clientOne.WrittenMessages), 1,
+			Equal(t, 1, len(clientOne.WrittenMessages),
 				"App Message should have been written to ClientOne after User request to join Lobby",
 			)
 			msg := clientOne.WrittenMessages[0]
 			payload := msg.Payload
-			Equal(t, msg.Type, app.ClientResponseTypes().USER_LOBBY_DATA, "Should receive Lobby Data after requesting to join")
+			Equal(t, app.ClientResponseTypes().USER_LOBBY_DATA, msg.Type, "Should receive Lobby Data after requesting to join")
 			True(t, contains(payload, `"User":{"ID":"1"}`), "Payload should contain user data")
 			True(t, contains(payload, room.GetID()), "Payload should contain Room Id")
 
@@ -96,18 +97,19 @@ func TestTwoClientsCanJoinTheLobbyAndARoomAndBeginMessagingEachOther(t *testing.
 					)
 
 					message := clientOne.WrittenMessages[1]
+					fmt.Println(message)
 					Equal(t, message.Type, app.ClientResponseTypes().USER_JOINED_ROOM, "Should comfirmation, user join roomed")
-					True(t, contains(message.Payload, "success"), "Message payload should contain success")
+					True(t, contains(message.Payload, "r1"), "Message payload should contain success")
 
 					t.Log("User Two request to Join Room One")
 					{
 						clientTwo.SendMessage(app.MessageTypeJoinRoom, `{"roomId": "r1"}`)
 						clientTwo.WaitForReturnChan()
 
-						Equal(t, len(clientTwo.WrittenMessages), 3,
+						Equal(t, 3, len(clientTwo.WrittenMessages),
 							"ClientTwo should have received lobby and room message",
 						)
-						Equal(t, len(clientOne.WrittenMessages), 3,
+						Equal(t, 3, len(clientOne.WrittenMessages),
 							"ClientOne Also Receive a message",
 						)
 
@@ -115,28 +117,26 @@ func TestTwoClientsCanJoinTheLobbyAndARoomAndBeginMessagingEachOther(t *testing.
 						clientTwoMessageTwo := clientOne.WrittenMessages[2]
 						clientOneMessage := clientOne.WrittenMessages[2]
 
-						Equal(t, clientTwoMessageOne.Type, app.ClientResponseTypes().USER_JOINED_ROOM,
+						Equal(t, app.ClientResponseTypes().USER_JOINED_ROOM, clientTwoMessageOne.Type,
 							"Should comfirmation, user join roomed",
 						)
-						True(t, contains(clientTwoMessageOne.Payload, "success"),
+						True(t, contains(clientTwoMessageOne.Payload, "r1"),
 							"Message payload should contain success",
 						)
 
-						Equal(t, clientOneMessage.Type, app.ClientResponseTypes().ROOM_BROADCAST,
-							"Should comfirmation, a user join roomed",
+						Equal(t, app.ClientResponseTypes().ROOM_BROADCAST_INIT, clientOneMessage.Type,
+							"ClientOne Should receive Room Init message room",
 						)
-						True(t, contains(clientOneMessage.Payload, "welcome"),
+
+						Equal(t, app.ClientResponseTypes().ROOM_BROADCAST_INIT, clientTwoMessageTwo.Type,
+							"ClinetTwo Should comfirmation, a user join roomed",
+						)
+
+						True(t, contains(clientTwoMessageTwo.Payload, "Initial State"),
 							"Message payload should contain welcome",
 						)
 
-						Equal(t, clientTwoMessageTwo.Type, app.ClientResponseTypes().ROOM_BROADCAST,
-							"Should comfirmation, a user join roomed",
-						)
-						True(t, contains(clientTwoMessageTwo.Payload, "welcome"),
-							"Message payload should contain welcome",
-						)
-
-						t.Log("++++++++++++++++++++ Application should be running")
+						t.Log("Clients have Received room init message. Application running...")
 						{
 							t.Log("ClientOne sends a message to its room")
 							{
@@ -170,6 +170,5 @@ func TestTwoClientsCanJoinTheLobbyAndARoomAndBeginMessagingEachOther(t *testing.
 }
 
 func contains(source, target string) bool {
-	// fmt.Println("conatains(): ", source, target)
 	return strings.Contains(source, target)
 }
