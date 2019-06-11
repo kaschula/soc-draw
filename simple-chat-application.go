@@ -75,7 +75,7 @@ func (app *SimpleChatApplication) Run() {
 		// Should maybe send message back to Room and Room should send to its broadcasters
 		message.GetRoom().Broadcast(
 			socketServer.NewClientAppMessage(nil, socketServer.NewAppMessage(
-				socketServer.ClientResponseTypes().ROOM_BROADCAST,
+				socketServer.GetResponseTypes().ROOM_BROADCAST,
 				// fmt.Sprintf(`{"state": %#v}`, state),
 				state,
 			)),
@@ -143,7 +143,7 @@ func (app *SimpleChatApplication) appendNewMessageToCurrentState(roomId string, 
 	if !ok {
 		return "", errors.New("Room state could not be found")
 	}
-	fmt.Println("RoomApplication::appendNewMessageToCurrentState():: roomState %#v \n", storedRoomState)
+	fmt.Printf("RoomApplication::appendNewMessageToCurrentState():: roomState %#v \n", storedRoomState)
 
 	roomState, err := parseStoredRoomState(storedRoomState)
 	if err != nil {

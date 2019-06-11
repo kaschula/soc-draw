@@ -16,7 +16,7 @@ type IsClient interface {
 func NewDefaultClient(id string, socket Socket) IsClient {
 	return &DefaultClient{
 		id,
-		nil, // Replace this with NotLobby, and empty implementation of Broadcast
+		NewNoLobby(),
 		[]Broadcasts{},
 		socket,
 	}
@@ -24,7 +24,7 @@ func NewDefaultClient(id string, socket Socket) IsClient {
 
 type DefaultClient struct {
 	id           string
-	lobby        Lobby // Use a NotLobby on construct Init
+	lobby        Lobby
 	broadcasters []Broadcasts
 	socket       Socket
 }
