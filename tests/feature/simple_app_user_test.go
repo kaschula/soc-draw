@@ -37,7 +37,7 @@ func TestTwoClientsCanJoinTheLobbyAndARoomAndBeginMessagingEachOther(t *testing.
 
 	userClientService := app.NewInMemoryUserClientService()
 
-	lobby := app.NewLobby(userRepository, roomService, userClientService)
+	lobby := app.NewRoomLobby(userRepository, roomService, userClientService)
 
 	go simpleApp.Run()
 	go clientOne.Listen()
@@ -55,7 +55,7 @@ func TestTwoClientsCanJoinTheLobbyAndARoomAndBeginMessagingEachOther(t *testing.
 		t.Log("User One (ClientOne) request to joins")
 		{
 
-			clientOne.SendMessage(app.MessageTypeLobbyUserJoinRequest, `{"user": "1"}`)
+			clientOne.SendMessage(app.GetRequestTypes().LOBBY_USER_JOIN_REQUEST, `{"user": "1"}`)
 			clientOne.WaitForReturnChan()
 
 			Equal(t, 1, len(clientOne.WrittenMessages),
@@ -63,13 +63,13 @@ func TestTwoClientsCanJoinTheLobbyAndARoomAndBeginMessagingEachOther(t *testing.
 			)
 			msg := clientOne.WrittenMessages[0]
 			payload := msg.Payload
-			Equal(t, app.ClientResponseTypes().USER_LOBBY_DATA, msg.Type, "Should receive Lobby Data after requesting to join")
+			Equal(t, app.GetResponseTypes().USER_LOBBY_DATA, msg.Type, "Should receive Lobby Data after requesting to join")
 			True(t, contains(payload, `"User":{"ID":"1"}`), "Payload should contain user data")
 			True(t, contains(payload, room.GetID()), "Payload should contain Room Id")
 
 			t.Log("User Two (ClientTwo) request to joins")
 			{
-				clientTwo.SendMessage(app.MessageTypeLobbyUserJoinRequest, `{"user": "2"}`)
+				clientTwo.SendMessage(app.GetRequestTypes().LOBBY_USER_JOIN_REQUEST, `{"user": "2"}`)
 				clientTwo.WaitForReturnChan()
 
 				Equal(t, len(clientOne.WrittenMessages), 1,
@@ -80,13 +80,13 @@ func TestTwoClientsCanJoinTheLobbyAndARoomAndBeginMessagingEachOther(t *testing.
 				)
 				msg := clientTwo.WrittenMessages[0]
 				payload := msg.Payload
-				Equal(t, msg.Type, app.ClientResponseTypes().USER_LOBBY_DATA, "Should receive Lobby Data after requesting to join")
+				Equal(t, msg.Type, app.GetResponseTypes().USER_LOBBY_DATA, "Should receive Lobby Data after requesting to join")
 				True(t, contains(payload, `"User":{"ID":"2"}`), "Payload should contain user data")
 				True(t, contains(payload, room.GetID()), "Payload should contain Room Id")
 
 				t.Log("User One request to Join Room One")
 				{
-					clientOne.SendMessage(app.MessageTypeJoinRoom, `{"roomId": "r1"}`)
+					clientOne.SendMessage(app.GetRequestTypes().LOBBY_ROOM_REQUEST, `{"roomId": "r1"}`)
 					clientOne.WaitForReturnChan()
 
 					Equal(t, len(clientOne.WrittenMessages), 2,
@@ -98,12 +98,12 @@ func TestTwoClientsCanJoinTheLobbyAndARoomAndBeginMessagingEachOther(t *testing.
 
 					message := clientOne.WrittenMessages[1]
 					fmt.Println(message)
-					Equal(t, message.Type, app.ClientResponseTypes().USER_JOINED_ROOM, "Should comfirmation, user join roomed")
+					Equal(t, message.Type, app.GetResponseTypes().USER_JOINED_ROOM, "Should comfirmation, user join roomed")
 					True(t, contains(message.Payload, "r1"), "Message payload should contain success")
 
 					t.Log("User Two request to Join Room One")
 					{
-						clientTwo.SendMessage(app.MessageTypeJoinRoom, `{"roomId": "r1"}`)
+						clientTwo.SendMessage(app.GetRequestTypes().LOBBY_ROOM_REQUEST, `{"roomId": "r1"}`)
 						clientTwo.WaitForReturnChan()
 
 						Equal(t, 3, len(clientTwo.WrittenMessages),
@@ -117,18 +117,18 @@ func TestTwoClientsCanJoinTheLobbyAndARoomAndBeginMessagingEachOther(t *testing.
 						clientTwoMessageTwo := clientOne.WrittenMessages[2]
 						clientOneMessage := clientOne.WrittenMessages[2]
 
-						Equal(t, app.ClientResponseTypes().USER_JOINED_ROOM, clientTwoMessageOne.Type,
+						Equal(t, app.GetResponseTypes().USER_JOINED_ROOM, clientTwoMessageOne.Type,
 							"Should comfirmation, user join roomed",
 						)
 						True(t, contains(clientTwoMessageOne.Payload, "r1"),
 							"Message payload should contain success",
 						)
 
-						Equal(t, app.ClientResponseTypes().ROOM_BROADCAST_INIT, clientOneMessage.Type,
+						Equal(t, app.GetResponseTypes().ROOM_BROADCAST_INIT, clientOneMessage.Type,
 							"ClientOne Should receive Room Init message room",
 						)
 
-						Equal(t, app.ClientResponseTypes().ROOM_BROADCAST_INIT, clientTwoMessageTwo.Type,
+						Equal(t, app.GetResponseTypes().ROOM_BROADCAST_INIT, clientTwoMessageTwo.Type,
 							"ClinetTwo Should comfirmation, a user join roomed",
 						)
 
@@ -141,7 +141,7 @@ func TestTwoClientsCanJoinTheLobbyAndARoomAndBeginMessagingEachOther(t *testing.
 							t.Log("ClientOne sends a message to its room")
 							{
 								firstMessagePayload := "Hi"
-								clientOne.SendMessage(app.ClientResponseTypes().ROOM_BROADCAST, firstMessagePayload)
+								clientOne.SendMessage(app.GetResponseTypes().ROOM_BROADCAST, firstMessagePayload)
 								clientOne.WaitForReturnChan()
 
 								Equal(t, len(clientOne.WrittenMessages), 4, "C1 Should receive its own message")
@@ -153,7 +153,7 @@ func TestTwoClientsCanJoinTheLobbyAndARoomAndBeginMessagingEachOther(t *testing.
 							t.Log("ClientTwo replies")
 							{
 								secondMessagePayload := "Hello"
-								clientTwo.SendMessage(app.ClientResponseTypes().ROOM_BROADCAST, secondMessagePayload)
+								clientTwo.SendMessage(app.GetResponseTypes().ROOM_BROADCAST, secondMessagePayload)
 								clientTwo.WaitForReturnChan()
 
 								Equal(t, len(clientOne.WrittenMessages), 5, "C2 Should receive its own message")

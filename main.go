@@ -1,7 +1,5 @@
 package main
 
-// APP NAME: SOCDRAW
-
 import (
 	"fmt"
 	"net/http"
@@ -15,7 +13,6 @@ func main() {
 	go appServer.Run()
 
 	// Data
-
 	userOne := &socketServer.User{"U:1"}
 	userTwo := &socketServer.User{"U:2"}
 	userThree := &socketServer.User{"U:3"}
@@ -61,7 +58,7 @@ func newApp(
 	userRepository := socketServer.NewInMemoryUserRepository(users)
 	userClientService := socketServer.NewInMemoryUserClientService()
 
-	lobby := socketServer.NewLobby(userRepository, roomService, userClientService)
+	lobby := socketServer.NewRoomLobby(userRepository, roomService, userClientService)
 
 	factory := &socketServer.GorillaWebsocketUpgradeFactory{}
 	clientService := socketServer.NewDefaultClientService(factory)

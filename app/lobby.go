@@ -14,7 +14,7 @@ type Lobby interface {
 	Broadcasts
 }
 
-func NewLobby(userRepository UserRepository, roomRepository RoomService, userClientService UserClientService) Lobby {
+func NewRoomLobby(userRepository UserRepository, roomRepository RoomService, userClientService UserClientService) Lobby {
 	return &RoomLobby{
 		// This should be a client store
 		make(map[string]IsClient),
@@ -77,11 +77,13 @@ func (l *RoomLobby) Broadcast(message ClientAppMessage) {
 		return
 	}
 
+	t := GetRequestTypes()
+
 	switch message.Type {
-	case MessageTypeLobbyUserJoinRequest:
+	case t.LOBBY_USER_JOIN_REQUEST:
 		l.resolveUser(client, message.Payload)
 		return
-	case MessageTypeJoinRoom:
+	case t.LOBBY_ROOM_REQUEST:
 		l.joinRoom(client, message.Payload)
 		return
 	default:
@@ -220,7 +222,7 @@ func newUserResolvedMessage(ld *LobbyData) ClientResponse {
 		return newErrorResponse(err.Error())
 	}
 
-	return ClientResponse{Type: ClientResponseTypes().USER_LOBBY_DATA, Payload: string(b)}
+	return ClientResponse{Type: GetResponseTypes().USER_LOBBY_DATA, Payload: string(b)}
 }
 
 func newUserJoinRoomMessage(roomId string) ClientResponse {
@@ -234,7 +236,12 @@ func newUserJoinRoomMessage(roomId string) ClientResponse {
 		return newErrorResponse(err.Error())
 	}
 
-	return ClientResponse{Type: ClientResponseTypes().USER_JOINED_ROOM, Payload: string(b), RoomID: roomId}
+	return ClientResponse{Type: GetResponseTypes().USER_JOINED_ROOM, Payload: string(b), RoomID: roomId}
+}
+
+func IsLobbyMessage(m string) bool {
+	return m == GetRequestTypes().LOBBY_USER_JOIN_REQUEST ||
+		m == GetRequestTypes().LOBBY_ROOM_REQUEST
 }
 
 // Untests

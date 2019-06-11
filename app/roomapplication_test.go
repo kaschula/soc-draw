@@ -12,7 +12,7 @@ func TestThatASimpleRoomAppWritesMessagesToOneRoom(t *testing.T) {
 	logger := &PrintsStub{0}
 	application := app.NewSimpleRoomApplication(logger)
 	room := stubs.NewRoomStub("room:1", "FirstRoom")
-	appMessage := app.NewAppMessage(app.MESSAGE_TYPE_ROOM_BROADCAST, "payload")
+	appMessage := app.NewAppMessage(app.GetResponseTypes().ROOM_BROADCAST, "payload")
 	go application.Run()
 
 	application.WriteMessage(app.NewRoomMessage(room, appMessage.Payload))
@@ -27,7 +27,7 @@ func TestThatASimpleRoomAppStartsRoom(t *testing.T) {
 	logger := &PrintsStub{0}
 	application := app.NewSimpleRoomApplication(logger)
 	room := stubs.NewRoomStub("room:1", "FirstRoom")
-	expectedMessage := app.NewAppMessage(app.MESSAGE_TYPE_ROOM_BROADCAST_INIT, `{"message":"welcome"}`)
+	expectedMessage := app.NewAppMessage(app.GetResponseTypes().ROOM_BROADCAST_INIT, `{"message":"welcome"}`)
 
 	go application.Start(room)
 	<-room.BroadcastReturn

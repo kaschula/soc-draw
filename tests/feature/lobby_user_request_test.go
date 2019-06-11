@@ -39,12 +39,12 @@ func runUserRequestTest(test testData) func(t *testing.T) {
 	return func(t *testing.T) {
 		client := test.client
 
-		lobby := app.NewLobby(test.userRepository, test.roomService, &test.userClientService)
+		lobby := app.NewRoomLobby(test.userRepository, test.roomService, &test.userClientService)
 		lobby.AddClient(client)
 
 		go client.Listen()
 
-		client.SendMessage(app.MessageTypeLobbyUserJoinRequest, test.messageToSend)
+		client.SendMessage(app.GetRequestTypes().LOBBY_USER_JOIN_REQUEST, test.messageToSend)
 		// Wait for something to be written
 		<-client.returnChan
 		// <-client.returnChan
@@ -129,7 +129,7 @@ func AnErrorResponseIsSentToTheClientWhenUserCantBeResolvedSetUp() testData {
 		roomService:                   roomService,
 		userClientService:             userClientService,
 		messageToSend:                 "{\"user\": \"NoExistantID\"}",
-		expectedAppMessageType:        app.ClientResponseTypes().ERROR,
+		expectedAppMessageType:        app.GetResponseTypes().ERROR,
 		expectedPayload:               app.GetResponseErrorMessages("USER"),
 		expectedcreateUserClientCalls: 0,
 	}
@@ -163,7 +163,7 @@ func AnErrorResponseIsSentToTheClientWhenLobbyDataCantBeResolvedSetUp() testData
 		roomService:                   roomService,
 		userClientService:             userClientService,
 		messageToSend:                 "{\"user\": \"UserID124\"}",
-		expectedAppMessageType:        app.ClientResponseTypes().ERROR,
+		expectedAppMessageType:        app.GetResponseTypes().ERROR,
 		expectedPayload:               app.GetResponseErrorMessages("LOBBY_DATA"),
 		expectedcreateUserClientCalls: 0,
 	}
@@ -204,7 +204,7 @@ func AnErrorResponseIsSentToTheClientWhenUserClientCantBeCreatedSetUp() testData
 		roomService:                   roomService,
 		userClientService:             userClientService,
 		messageToSend:                 "{\"user\": \"UserID124\"}",
-		expectedAppMessageType:        app.ClientResponseTypes().ERROR,
+		expectedAppMessageType:        app.GetResponseTypes().ERROR,
 		expectedPayload:               app.GetResponseErrorMessages("USER_CLIENT"),
 		expectedcreateUserClientCalls: 1,
 	}

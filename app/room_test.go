@@ -22,14 +22,14 @@ func TestARoomStartsOnceEnoughClientHaveBeenAddedAndMessagesCanBeBroadcast(t *te
 	room.AddUserClient(userClientOne)
 	room.AddUserClient(userClientTwo)
 
-	message := app.AppMessage{app.ClientResponseTypes().ROOM_BROADCAST, "Payload"}
+	message := app.AppMessage{app.GetResponseTypes().ROOM_BROADCAST, "Payload"}
 
 	room.Broadcast(app.ClientAppMessage{nil, message})
 
 	Equal(t, clientOne.WrittenMessages[0].Payload, "Payload", "Client One Did not recieve correct Payload")
-	Equal(t, clientOne.WrittenMessages[0].Type, app.ClientResponseTypes().ROOM_BROADCAST, "Client One Did not recieve correct Type")
+	Equal(t, clientOne.WrittenMessages[0].Type, app.GetResponseTypes().ROOM_BROADCAST, "Client One Did not recieve correct Type")
 	Equal(t, clientTwo.WrittenMessages[0].Payload, "Payload", "Client Two Did not recieve correct Payload")
-	Equal(t, clientTwo.WrittenMessages[0].Type, app.ClientResponseTypes().ROOM_BROADCAST, "Client Two Did not recieve correct Type")
+	Equal(t, clientTwo.WrittenMessages[0].Type, app.GetResponseTypes().ROOM_BROADCAST, "Client Two Did not recieve correct Type")
 }
 
 func TestARoomDoesNotBroadCastToClientsIfNotEnoughInRoom(t *testing.T) {
@@ -44,12 +44,12 @@ func TestARoomDoesNotBroadCastToClientsIfNotEnoughInRoom(t *testing.T) {
 	room := app.NewDefaultRoom("1", "R2", roomApp)
 	room.AddUserClient(userClientOne)
 
-	messageOne := app.AppMessage{app.ClientResponseTypes().ROOM_BROADCAST, "First Payload"}
+	messageOne := app.AppMessage{app.GetResponseTypes().ROOM_BROADCAST, "First Payload"}
 	room.Broadcast(app.ClientAppMessage{nil, messageOne})
 
 	room.AddUserClient(userClientTwo)
 
-	messageTwo := app.AppMessage{app.ClientResponseTypes().ROOM_BROADCAST, "Second Payload"}
+	messageTwo := app.AppMessage{app.GetResponseTypes().ROOM_BROADCAST, "Second Payload"}
 	room.Broadcast(app.ClientAppMessage{nil, messageTwo})
 
 	Equal(t, true, strings.Contains(clientOne.WrittenMessages[0].Payload, `"running":"false"`),
@@ -71,7 +71,7 @@ func TestThatAMessageWrittenToARoomIsPassedToTheRoomApp(t *testing.T) {
 	room := app.NewDefaultRoom("1", "R2", roomApp)
 	message := app.ClientAppMessage{
 		nil,
-		app.AppMessage{app.ClientResponseTypes().ROOM_BROADCAST, "Payload"},
+		app.AppMessage{app.GetResponseTypes().ROOM_BROADCAST, "Payload"},
 	}
 	// should start room app
 	room.AddUserClient(userClientOne)

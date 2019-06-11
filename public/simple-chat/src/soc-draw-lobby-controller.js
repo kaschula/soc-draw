@@ -42,6 +42,7 @@
         
             try {
                 sockDrawClient.send(
+                    // THis should be in the message factory
                     JSON.stringify({
                         messageType: "LOBBY_ROOM_REQUEST", 
                         payload: JSON.stringify({roomId})

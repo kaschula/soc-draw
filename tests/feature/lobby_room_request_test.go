@@ -38,11 +38,11 @@ func runLobbyRoomTests(test roomTest) func(t *testing.T) {
 	return func(t *testing.T) {
 		client := test.client
 
-		lobby := app.NewLobby(test.userRepository, test.roomService, test.userClientService)
+		lobby := app.NewRoomLobby(test.userRepository, test.roomService, test.userClientService)
 		lobby.AddClient(client)
 		go client.Listen()
 
-		client.SendMessage(app.MessageTypeJoinRoom, test.payload)
+		client.SendMessage(app.GetRequestTypes().LOBBY_ROOM_REQUEST, test.payload)
 
 		client.WaitForReturnChan()
 
@@ -87,7 +87,7 @@ func AUserRequestToJoinARoomItHasAccessTo() roomTest {
 		userRepository,
 		roomService,
 		userClientService,
-		app.ClientResponseTypes().USER_JOINED_ROOM,
+		app.GetResponseTypes().USER_JOINED_ROOM,
 		`{"RoomId":"r1"}`,
 	}
 }
@@ -115,7 +115,7 @@ func AUserGetsAnErrorResponseWhenUserClientCanNotBeResolved() roomTest {
 		userRepository,
 		roomService,
 		userClientService,
-		app.ClientResponseTypes().ERROR,
+		app.GetResponseTypes().ERROR,
 		app.GetResponseErrorMessages("USER_CLIENT_404"),
 	}
 }
@@ -146,7 +146,7 @@ func AUserGetsAnErrorResponseWhenRoomIdPayloadIsInvalid() roomTest {
 		userRepository,
 		roomService,
 		userClientService,
-		app.ClientResponseTypes().ERROR,
+		app.GetResponseTypes().ERROR,
 		app.GetResponseErrorMessages("PAYLOAD_ROOM_ID"),
 	}
 }
@@ -180,7 +180,7 @@ func AUserGetsAnErrorResponseWhenUserCanNotJoinRoom() roomTest {
 		userRepository,
 		roomService,
 		userClientService,
-		app.ClientResponseTypes().ERROR,
+		app.GetResponseTypes().ERROR,
 		app.GetResponseErrorMessages("USER_ROOM_AUTH"),
 	}
 }
@@ -216,7 +216,7 @@ func AUserGetsAnErrorResponseWhenUserTrysToJoinARoom() roomTest {
 		userRepository,
 		&roomService,
 		userClientService,
-		app.ClientResponseTypes().ERROR,
+		app.GetResponseTypes().ERROR,
 		app.GetResponseErrorMessages("ADD_USER_TO_ROOM"),
 	}
 }

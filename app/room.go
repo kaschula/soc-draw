@@ -157,12 +157,13 @@ func (r *BaseRoom) WriteMessage(message ClientAppMessage) {
 }
 
 // Untested
-func isRoomType(messageType string) bool {
-	return messageType == ClientResponseTypes().ROOM_BROADCAST ||
-		messageType == MESSAGE_TYPE_ROOM ||
-		messageType == MESSAGE_TYPE_ROOM_WELCOME ||
-		messageType == "ROOM_REQUEST" || // add this Type to requests Types
-		messageType == "ROOM_BROADCAST_INIT"
+func isRoomType(t string) bool {
+	responses := GetResponseTypes()
+
+	return t == responses.ROOM_BROADCAST ||
+		t == GetRequestTypes().ROOM_REQUEST || // add this Type to requests Types
+		t == responses.ROOM_BROADCAST_INIT ||
+		t == responses.ROOM_BROADCAST_MESSAGE
 }
 
 //Untested

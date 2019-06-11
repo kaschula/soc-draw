@@ -5,18 +5,31 @@ func newErrorResponse(errorType string) ClientResponse {
 }
 
 type ClientResponse struct {
-	Type    string //types, ERROR, USER_LOBBY_DATA, ROOM_BROADCAST
+	Type    string
 	Payload string
 	RoomID  string
-	// It might be worth adding RoomID
 }
 
-type ResponseTypes struct {
-	ERROR               string
-	USER_LOBBY_DATA     string
-	USER_JOINED_ROOM    string
-	ROOM_BROADCAST      string
-	ROOM_BROADCAST_INIT string
+type responseTypes struct {
+	CREATED                string
+	USER_LOBBY_DATA        string
+	USER_JOINED_ROOM       string
+	ROOM_BROADCAST         string
+	ROOM_BROADCAST_MESSAGE string
+	ROOM_BROADCAST_INIT    string
+	ERROR                  string
+}
+
+func GetResponseTypes() responseTypes {
+	return responseTypes{
+		"CREATED",
+		"USER_LOBBY_DATA",
+		"USER_JOINED_ROOM",
+		"ROOM_BROADCAST",
+		"ROOM_BROADCAST_MESSAGE",
+		"ROOM_BROADCAST_INIT",
+		"ERROR",
+	}
 }
 
 type ErrorTypes struct {
@@ -27,17 +40,6 @@ type ErrorTypes struct {
 	PAYLOAD_ROOM_ID  string
 	USER_ROOM_AUTH   string
 	ADD_USER_TO_ROOM string
-}
-
-// Find A better way of a const object
-func ClientResponseTypes() ResponseTypes {
-	return ResponseTypes{
-		ERROR:               "ERROR",
-		USER_LOBBY_DATA:     "USER_LOBBY_DATA",
-		USER_JOINED_ROOM:    "USER_JOINED_ROOM",
-		ROOM_BROADCAST:      "ROOM_BROADCAST",
-		ROOM_BROADCAST_INIT: "ROOM_BROADCAST_INIT",
-	}
 }
 
 func ClientResponseErrorType() ErrorTypes {
@@ -73,8 +75,12 @@ func NewRoomResponse(message ClientAppMessage, roomId string) ClientResponse {
 
 func NewRoomWaitingToStart(roomId string) ClientResponse {
 	return ClientResponse{
-		ClientResponseTypes().ROOM_BROADCAST,
+		GetResponseTypes().ROOM_BROADCAST,
 		`{"running":"false", "message":"waiting for room to start"}`,
 		roomId,
 	}
+}
+
+func welcomeMessage() ClientResponse {
+	return ClientResponse{Type: "CREATED", Payload: "{}"}
 }
