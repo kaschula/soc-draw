@@ -33,7 +33,7 @@ func (app *SimpleChatApplication) Start(room socketServer.RoomI) {
 	app.roomState[room.GetID()] = initAppState
 	// Change this append to set up state on of a roomId key and the string
 	app.rooms = append(app.rooms, room)
-	room.Broadcast(socketServer.NewClientAppMessage(nil, socketServer.NewAppMessage("ROOM_BROADCAST_INIT", initAppState)))
+	room.Broadcast(socketServer.NewClientAppMessage(socketServer.NewNoClient(), socketServer.NewAppMessage("ROOM_BROADCAST_INIT", initAppState)))
 }
 
 func (app *SimpleChatApplication) WriteMessage(message socketServer.RoomMessage) {
@@ -67,14 +67,14 @@ func (app *SimpleChatApplication) Run() {
 
 		if err != nil {
 			message.GetRoom().Broadcast(
-				socketServer.NewClientAppMessage(nil, socketServer.NewAppMessage("ROOM_BROADCAST_ERROR", err.Error())),
+				socketServer.NewClientAppMessage(socketServer.NewNoClient(), socketServer.NewAppMessage("ROOM_BROADCAST_ERROR", err.Error())),
 			)
 		}
 
 		fmt.Printf("RoomApplication::Run():: processed state %#v \n", state)
 		// Should maybe send message back to Room and Room should send to its broadcasters
 		message.GetRoom().Broadcast(
-			socketServer.NewClientAppMessage(nil, socketServer.NewAppMessage(
+			socketServer.NewClientAppMessage(socketServer.NewNoClient(), socketServer.NewAppMessage(
 				socketServer.GetResponseTypes().ROOM_BROADCAST,
 				// fmt.Sprintf(`{"state": %#v}`, state),
 				state,

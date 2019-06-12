@@ -1,7 +1,5 @@
 package app
 
-import "errors"
-
 type requestTypes struct {
 	LOBBY_USER_JOIN_REQUEST string
 	ROOM_REQUEST            string
@@ -26,18 +24,19 @@ type AppMessage struct {
 }
 
 type ClientAppMessage struct {
-	Client IsClient
+	client IsClient
 	AppMessage
 }
 
-func (c ClientAppMessage) GetClient() (IsClient, error) {
-	if c.Client == nil {
-		return nil, errors.New("Client Can not be resolved")
+// Untested validation
+func NewClientAppMessage(c IsClient, m AppMessage) ClientAppMessage {
+	if c == nil {
+		c = NewNoClient()
 	}
 
-	return c.Client, nil
+	return ClientAppMessage{c, m}
 }
 
-func NewClientAppMessage(c IsClient, m AppMessage) ClientAppMessage {
-	return ClientAppMessage{c, m}
+func (c ClientAppMessage) GetClient() IsClient {
+	return c.client
 }

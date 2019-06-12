@@ -35,3 +35,7 @@ func (l *NoLobby) GetID() string {
 }
 
 func (l *NoLobby) RemoveUserClient(UserClient) {}
+
+func (l *NoLobby) IsLobbyMessage(m string) bool {
+	return isLobbyMessage(m)
+}

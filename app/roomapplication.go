@@ -36,7 +36,7 @@ func (app *SimpleRoomApplication) Start(room RoomI) {
 	initAppState := "Initial State"
 	app.roomState[room.GetID()] = initAppState
 	app.rooms = append(app.rooms, room)
-	room.Broadcast(NewClientAppMessage(nil, NewAppMessage("ROOM_BROADCAST_INIT", initAppState)))
+	room.Broadcast(NewClientAppMessage(NewNoClient(), NewAppMessage("ROOM_BROADCAST_INIT", initAppState)))
 }
 
 func (app *SimpleRoomApplication) WriteMessage(message RoomMessage) {
@@ -53,7 +53,7 @@ func (app *SimpleRoomApplication) Run() {
 		app.logger.Printf("Room %#v is Broadcasting %#v", message.GetRoom().GetID(), message)
 		// Should maybe send message back to Room and Room should send to its broadcasters
 		message.GetRoom().Broadcast(
-			NewClientAppMessage(nil, NewAppMessage(GetResponseTypes().ROOM_BROADCAST, message.GetPayload())),
+			NewClientAppMessage(NewNoClient(), NewAppMessage(GetResponseTypes().ROOM_BROADCAST, message.GetPayload())),
 		)
 	}
 }

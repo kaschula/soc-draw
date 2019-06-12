@@ -3,6 +3,7 @@ package app_test
 import (
 	"errors"
 	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/kaschula/socket-server/app"
@@ -156,4 +157,8 @@ func (l *LobbyStub) ResolveUserClient(c app.IsClient) (app.UserClient, error) {
 
 func (l *LobbyStub) RemoveUserClient(uc app.UserClient) {
 
+}
+
+func (l *LobbyStub) IsLobbyMessage(m string) bool {
+	return strings.Contains(m, "LOBBY")
 }

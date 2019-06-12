@@ -33,7 +33,7 @@ func (c *ClientStub) GetID() string {
 func (c *ClientStub) Listen() {
 	for {
 		appMessage := c.ReadMessage()
-		message := app.ClientAppMessage{c, appMessage}
+		message := app.NewClientAppMessage(c, appMessage)
 
 		c.publish(message)
 		c.ReturnChan <- true

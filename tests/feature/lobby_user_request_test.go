@@ -228,7 +228,7 @@ func (c *ClientStub2) Listen() {
 	for {
 		appMessage := c.ReadMessage()
 		fmt.Println("Client::Listen()", appMessage)
-		message := app.ClientAppMessage{c, appMessage}
+		message := app.NewClientAppMessage(c, appMessage)
 
 		c.lobby.Broadcast(message)
 		c.returnChan <- ""

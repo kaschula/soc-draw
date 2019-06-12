@@ -11,6 +11,7 @@ type Lobby interface {
 	GetClient(id string) (IsClient, error)
 	Remove(IsClient)
 	ResolveUserClient(IsClient) (UserClient, error)
+	IsLobbyMessage(string) bool
 	Broadcasts
 }
 
@@ -64,18 +65,14 @@ func (l *RoomLobby) GetClient(id string) (IsClient, error) {
 func (l *RoomLobby) Broadcast(message ClientAppMessage) {
 	fmt.Println("Lobby::Broadcast()")
 	// This may not be needed any more as this check is don't in the client
-	if !IsLobbyMessage(message.Type) {
+	if !l.IsLobbyMessage(message.Type) {
 		// To Test, use Client repo stub to test if the Client repository was called
 		// make lobby_test unit test
 		fmt.Printf("Message type of %v is not Lobby Message \n", message.Type)
 		return
 	}
 
-	client, err := message.GetClient()
-	if err != nil {
-		fmt.Println("Error: No client resolved from message")
-		return
-	}
+	client := message.GetClient()
 
 	t := GetRequestTypes()
 
@@ -239,7 +236,11 @@ func newUserJoinRoomMessage(roomId string) ClientResponse {
 	return ClientResponse{Type: GetResponseTypes().USER_JOINED_ROOM, Payload: string(b), RoomID: roomId}
 }
 
-func IsLobbyMessage(m string) bool {
+func (l *RoomLobby) IsLobbyMessage(m string) bool {
+	return isLobbyMessage(m)
+}
+
+func isLobbyMessage(m string) bool {
 	return m == GetRequestTypes().LOBBY_USER_JOIN_REQUEST ||
 		m == GetRequestTypes().LOBBY_ROOM_REQUEST
 }

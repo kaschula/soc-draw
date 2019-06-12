@@ -24,7 +24,7 @@ func TestARoomStartsOnceEnoughClientHaveBeenAddedAndMessagesCanBeBroadcast(t *te
 
 	message := app.AppMessage{app.GetResponseTypes().ROOM_BROADCAST, "Payload"}
 
-	room.Broadcast(app.ClientAppMessage{nil, message})
+	room.Broadcast(app.NewClientAppMessage(nil, message))
 
 	Equal(t, clientOne.WrittenMessages[0].Payload, "Payload", "Client One Did not recieve correct Payload")
 	Equal(t, clientOne.WrittenMessages[0].Type, app.GetResponseTypes().ROOM_BROADCAST, "Client One Did not recieve correct Type")
@@ -45,12 +45,12 @@ func TestARoomDoesNotBroadCastToClientsIfNotEnoughInRoom(t *testing.T) {
 	room.AddUserClient(userClientOne)
 
 	messageOne := app.AppMessage{app.GetResponseTypes().ROOM_BROADCAST, "First Payload"}
-	room.Broadcast(app.ClientAppMessage{nil, messageOne})
+	room.Broadcast(app.NewClientAppMessage(nil, messageOne))
 
 	room.AddUserClient(userClientTwo)
 
 	messageTwo := app.AppMessage{app.GetResponseTypes().ROOM_BROADCAST, "Second Payload"}
-	room.Broadcast(app.ClientAppMessage{nil, messageTwo})
+	room.Broadcast(app.NewClientAppMessage(nil, messageTwo))
 
 	Equal(t, true, strings.Contains(clientOne.WrittenMessages[0].Payload, `"running":"false"`),
 		"Client One Did not recieve correct Payload",
@@ -69,10 +69,10 @@ func TestThatAMessageWrittenToARoomIsPassedToTheRoomApp(t *testing.T) {
 	userClientTwo := app.NewUserClient(clientTwo, user)
 
 	room := app.NewDefaultRoom("1", "R2", roomApp)
-	message := app.ClientAppMessage{
+	message := app.NewClientAppMessage(
 		nil,
 		app.AppMessage{app.GetResponseTypes().ROOM_BROADCAST, "Payload"},
-	}
+	)
 	// should start room app
 	room.AddUserClient(userClientOne)
 	room.AddUserClient(userClientTwo)

@@ -50,7 +50,7 @@ func (c *DefaultClient) Listen() {
 			"Client::Listen() Client: %#v. AppMessage: %#v. Broadcasters: %#v. \n",
 			c.GetID(), msg, c.broadcasters,
 		)
-		if IsLobbyMessage(msg.Type) {
+		if c.lobby.IsLobbyMessage(msg.Type) {
 			fmt.Println("Client::Listen() message is lobby type")
 			// creating the client message is repeated below
 			c.lobby.Broadcast(NewClientAppMessage(c, msg))
@@ -107,10 +107,6 @@ func getRoomId(payload string) string {
 	var roomPayload struct {
 		RoomId string `json:"roomId"`
 	}
-
-	// var payload struct {
-	// 	UserID string `json:"user"`
-	// }
 
 	raw := []byte(payload)
 	json.Unmarshal(
