@@ -104,6 +104,7 @@
             const appWindow = uiService.query("#application-window")
 
             if (!uiService.query(`#${simpleAppDivId}`).length) {
+                // TODo this check should be responsability of the room not a room application
                 appWindow.append(messagingAppComponent())
             }
 
