@@ -13,7 +13,7 @@ type roomTest struct {
 	title                  string
 	client                 *stubs.ClientStub
 	payload                string
-	userRepository         app.UserRepository
+	userService            app.UserService
 	roomService            app.RoomService
 	userClientService      app.UserClientService
 	expectedAppMessageType string
@@ -38,7 +38,7 @@ func runLobbyRoomTests(test roomTest) func(t *testing.T) {
 	return func(t *testing.T) {
 		client := test.client
 
-		lobby := app.NewRoomLobby(test.userRepository, test.roomService, test.userClientService)
+		lobby := app.NewRoomLobby(test.userService, test.roomService, test.userClientService)
 		lobby.AddClient(client)
 		go client.Listen()
 
@@ -69,7 +69,7 @@ func AUserRequestToJoinARoomItHasAccessTo() roomTest {
 	})
 
 	user := &(app.User{"U1"})
-	userRepository := &app.InMemoryUserRepository{}
+	userService := &app.InMemoryUserService{}
 	roomService := &app.DefaultRoomService{
 		map[*app.User][]app.RoomI{
 			user: []app.RoomI{
@@ -84,7 +84,7 @@ func AUserRequestToJoinARoomItHasAccessTo() roomTest {
 		"A User Request To Join A Room It Has Access To Is Successful",
 		client,
 		`{"roomId": "r1"}`,
-		userRepository,
+		userService,
 		roomService,
 		userClientService,
 		app.GetResponseTypes().USER_JOINED_ROOM,
@@ -102,7 +102,7 @@ func AUserGetsAnErrorResponseWhenUserClientCanNotBeResolved() roomTest {
 		nil,
 	})
 
-	userRepository := &app.InMemoryUserRepository{}
+	userService := &app.InMemoryUserService{}
 	roomService := &app.DefaultRoomService{
 		make(map[*app.User][]app.RoomI),
 	}
@@ -112,7 +112,7 @@ func AUserGetsAnErrorResponseWhenUserClientCanNotBeResolved() roomTest {
 		"A User Gets An Error Response When UserClient Can Not Be Resolved",
 		client,
 		`{"This test doesn't need a payload"}`,
-		userRepository,
+		userService,
 		roomService,
 		userClientService,
 		app.GetResponseTypes().ERROR,
@@ -131,7 +131,7 @@ func AUserGetsAnErrorResponseWhenRoomIdPayloadIsInvalid() roomTest {
 	})
 
 	user := &(app.User{"U1"})
-	userRepository := &app.InMemoryUserRepository{}
+	userService := &app.InMemoryUserService{}
 	roomService := &app.DefaultRoomService{
 		make(map[*app.User][]app.RoomI),
 	}
@@ -143,7 +143,7 @@ func AUserGetsAnErrorResponseWhenRoomIdPayloadIsInvalid() roomTest {
 		"A User Gets An Error Response When RoomId Payload Is Invalid",
 		client,
 		`{"Invalid payload": "r1"}`,
-		userRepository,
+		userService,
 		roomService,
 		userClientService,
 		app.GetResponseTypes().ERROR,
@@ -162,7 +162,7 @@ func AUserGetsAnErrorResponseWhenUserCanNotJoinRoom() roomTest {
 	})
 
 	user := &(app.User{"U1"})
-	userRepository := &app.InMemoryUserRepository{}
+	userService := &app.InMemoryUserService{}
 	roomService := &app.DefaultRoomService{
 		map[*app.User][]app.RoomI{
 			user: []app.RoomI{
@@ -177,7 +177,7 @@ func AUserGetsAnErrorResponseWhenUserCanNotJoinRoom() roomTest {
 		"A User Gets An Error Response When User Can Not Join Room",
 		client,
 		`{"roomId": "r2"}`,
-		userRepository,
+		userService,
 		roomService,
 		userClientService,
 		app.GetResponseTypes().ERROR,
@@ -196,7 +196,7 @@ func AUserGetsAnErrorResponseWhenUserTrysToJoinARoom() roomTest {
 	})
 
 	user := &(app.User{"U1"})
-	userRepository := &app.InMemoryUserRepository{}
+	userService := &app.InMemoryUserService{}
 	inMemRoomRepo := &app.DefaultRoomService{
 		map[*app.User][]app.RoomI{
 			user: []app.RoomI{
@@ -204,7 +204,7 @@ func AUserGetsAnErrorResponseWhenUserTrysToJoinARoom() roomTest {
 			},
 		},
 	}
-	roomService := roomRepositoryStub{inMemRoomRepo}
+	roomService := roomServiceStub{inMemRoomRepo}
 
 	userClientService := app.NewInMemoryUserClientService(nil)
 	userClientService.CreateAndStoreUserClient(user, client)
@@ -213,7 +213,7 @@ func AUserGetsAnErrorResponseWhenUserTrysToJoinARoom() roomTest {
 		"A User Gets An Error Response When User Trys To Join A Room",
 		client,
 		`{"roomId": "r1"}`,
-		userRepository,
+		userService,
 		&roomService,
 		userClientService,
 		app.GetResponseTypes().ERROR,
@@ -221,11 +221,11 @@ func AUserGetsAnErrorResponseWhenUserTrysToJoinARoom() roomTest {
 	}
 }
 
-type roomRepositoryStub struct {
+type roomServiceStub struct {
 	*app.DefaultRoomService
 }
 
 // Overide the app.DefaultRoomService AddUserClient to return error
-func (r *roomRepositoryStub) AddUserClient(userClient app.UserClient, roomId string) error {
+func (r *roomServiceStub) AddUserClient(userClient app.UserClient, roomId string) error {
 	return errors.New("Add User Error")
 }

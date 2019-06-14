@@ -19,8 +19,8 @@ type DefaultRoomService struct {
 	UserRooms map[*User][]RoomI
 }
 
-func (r *DefaultRoomService) GetRooms(user *User) ([]RoomI, error) {
-	rooms, ok := r.UserRooms[user]
+func (s *DefaultRoomService) GetRooms(user *User) ([]RoomI, error) {
+	rooms, ok := s.UserRooms[user]
 	if !ok || rooms == nil {
 		return nil, errors.New("Unable to resolve User's Rooms")
 	}
@@ -28,9 +28,9 @@ func (r *DefaultRoomService) GetRooms(user *User) ([]RoomI, error) {
 	return rooms, nil
 }
 
-func (r *DefaultRoomService) GetRoom(user *User, roomId string) (RoomI, error) {
+func (s *DefaultRoomService) GetRoom(user *User, roomId string) (RoomI, error) {
 	var room RoomI
-	for _, r := range r.UserRooms[user] {
+	for _, r := range s.UserRooms[user] {
 		if r.GetID() == roomId {
 			room = r
 		}
@@ -41,10 +41,10 @@ func (r *DefaultRoomService) GetRoom(user *User, roomId string) (RoomI, error) {
 	return room, nil
 }
 
-func (r *DefaultRoomService) CanUserJoin(userClient UserClient, roomId string) bool {
+func (s *DefaultRoomService) CanUserJoin(userClient UserClient, roomId string) bool {
 	user := userClient.GetUser()
 
-	rooms, err := r.GetRooms(user)
+	rooms, err := s.GetRooms(user)
 	if err != nil {
 		return false
 	}
@@ -58,16 +58,12 @@ func (r *DefaultRoomService) CanUserJoin(userClient UserClient, roomId string) b
 	return false
 }
 
-func (rs *DefaultRoomService) AddUserClient(client UserClient, roomId string) error {
-	room, err := rs.GetRoom(client.GetUser(), roomId)
-
-	// fmt.Println(room)
+func (s *DefaultRoomService) AddUserClient(uc UserClient, roomId string) error {
+	room, err := s.GetRoom(uc.GetUser(), roomId)
 
 	if err != nil {
 		return errors.New("Could not resolve Room")
 	}
 
-	room.AddUserClient(client)
-
-	return nil
+	return room.AddUserClient(uc)
 }

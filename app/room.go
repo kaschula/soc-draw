@@ -1,11 +1,12 @@
 package app
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type RoomI interface {
-	// GetID() string
-	AddUserClient(UserClient)
-	WriteMessage(clientMessage ClientAppMessage)
+	AddUserClient(UserClient) error
 	Broadcasts
 }
 
@@ -13,7 +14,7 @@ type BaseRoom struct {
 	ID   string `json:"ID"`
 	Name string `json:"Name"`
 	// Todo: Change this to Map
-	clients        []UserClient
+	clients        map[string]UserClient
 	running        bool
 	minimumClients int
 	maxClients     int
@@ -29,7 +30,7 @@ func NewRoom(id, name string, minimumClients, maxClients int, roomApp RoomApplic
 	return &BaseRoom{
 		id,
 		name,
-		[]UserClient{},
+		map[string]UserClient{},
 		false,
 		minimumClients,
 		maxClients,
@@ -37,17 +38,26 @@ func NewRoom(id, name string, minimumClients, maxClients int, roomApp RoomApplic
 	}
 }
 
-func (r *BaseRoom) AddUserClient(uc UserClient) {
-	r.clients = append(r.clients, uc)
+func (r *BaseRoom) AddUserClient(uc UserClient) error {
+	userId := uc.GetUser().ID
 
-	client := uc.GetClient() // <-------- Not Unit Untested
+	_, ok := r.clients[userId]
+	if ok {
+		return errors.New("User is already part of room")
+	}
+
+	r.clients[userId] = uc
+
+	client := uc.GetClient()
 	client.Subscribe(r)
 	r.updated()
+
+	return nil
 }
 
-// retest
 func (r *BaseRoom) updated() {
 	if !r.isReady() {
+		fmt.Println("Room is not ready")
 		if r.isRunning() {
 			fmt.Println("Room::updated() Room is running and not ready: room should stop")
 			// r.stop()
@@ -86,47 +96,31 @@ func (r *BaseRoom) isRunning() bool {
 	return r.running
 }
 
-/**
-I think it might be required to create a RoomResponse,
-This should extend ClientResponse but contain RoomId and Room.Running
-The payload should be untouched and what ever is given
-This will help when the room app is returning data
-*/
-
 func (r *BaseRoom) Broadcast(message ClientAppMessage) {
+	fmt.Println("Room broadcast")
 	if !r.isRunning() {
 		fmt.Println("Room is not running writing to client")
 		for _, userClient := range r.clients {
 			userClient.GetClient().WriteJson(NewRoomWaitingToStart(r.GetID()))
 		}
+
 		return // Room is not running, should this now return an error
 	}
 
 	messageType := message.Type
 
-	// 1* remove this first if
-	if !isRoomType(messageType) {
-		fmt.Println("Room::Broadcast(), message type note rooms: ", messageType)
-		return
-	}
-
 	if isRoomRequest(messageType) {
-		r.WriteMessage(message)
+		r.writeToRoom(message)
 		return
 	}
 
-	// 1* add this, if request goes to app, if broadcast goes to clients, ignore everything else
-	// if isRoomBroadcast(messageType) {
-	// 	r.broadcast(message)
-	// 	return
-	// }
-
-	// *1 remove this when adding extra if
-	r.broadcast(message)
+	if isRoomBroadcast(messageType) {
+		r.broadcast(message)
+		return
+	}
 }
 
 func (r *BaseRoom) broadcast(message ClientAppMessage) {
-	// move NewRoomResponse into Room
 	response := NewRoomResponse(message, r.GetID())
 
 	fmt.Println("Room::broadcast()::response", response)
@@ -135,47 +129,31 @@ func (r *BaseRoom) broadcast(message ClientAppMessage) {
 	}
 }
 
-// Todo: should this be public????
-func (r *BaseRoom) WriteMessage(message ClientAppMessage) {
-	fmt.Println("Room:: WriteMessage()::message", message)
+func (r *BaseRoom) writeToRoom(message ClientAppMessage) {
 	if !r.isRunning() {
 		fmt.Println("Cant write to app as room is not running")
 		return
 	}
-	fmt.Println("Room:: WriteMessage()::writing")
+
 	r.roomApp.WriteMessage(NewRoomMessage(r, message.Payload))
 }
 
-func isRoomType(t string) bool {
-	responses := GetResponseTypes()
-
-	return t == responses.ROOM_BROADCAST ||
-		t == GetRequestTypes().ROOM_REQUEST || // add this Type to requests Types
-		t == responses.ROOM_BROADCAST_INIT ||
-		t == responses.ROOM_BROADCAST_MESSAGE
-}
-
 func (r *BaseRoom) RemoveUserClient(uc UserClient) {
-	// This is a terrible way of doing this, need to change to slice to map
+	userId := uc.GetUser().ID
 
-	swop := make([]UserClient, 0)
-	for _, client := range r.clients {
-		if uc.GetClient().GetID() == client.GetClient().GetID() {
-			continue
-		}
-
-		swop = append(swop, client)
+	uc, ok := r.clients[userId]
+	if !ok {
+		return
 	}
-
-	r.clients = swop
+	delete(r.clients, userId)
 
 	r.updated()
 }
 
 func isRoomRequest(messageType string) bool {
-	return messageType == "ROOM_REQUEST"
+	return messageType == GetRequestTypes().ROOM_REQUEST
 }
 
 func isRoomBroadcast(messageType string) bool {
-	return messageType == "ROOM_BROADCAST"
+	return messageType == GetResponseTypes().ROOM_BROADCAST || messageType == GetResponseTypes().ROOM_BROADCAST_INIT
 }

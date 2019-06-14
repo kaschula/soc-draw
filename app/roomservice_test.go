@@ -9,11 +9,9 @@ import (
 )
 
 func TestARoomStartsAfterBeingUpdated(t *testing.T) {
-
 	user := &app.User{"U1"}
 	userClient := &UserClientStub{user, nil}
 	room := stubs.NewRoomStub("R1", "RoomStub")
-	// roomRepository
 	roomRepository := make(map[*app.User][]app.RoomI)
 	roomRepository[user] = []app.RoomI{room}
 
@@ -27,24 +25,6 @@ func TestARoomStartsAfterBeingUpdated(t *testing.T) {
 
 	Equal(t, 1, room.AddUserClientCount, "RoomStub Listen Should have been Called")
 }
-
-// type RoomStub struct {
-// 	ID            string
-// 	Name          string
-// 	addUserClient int
-// }
-
-// func (r *RoomStub) AddUserClient(client app.UserClient) {
-// 	r.addUserClient++
-// }
-
-// func (r *RoomStub) GetID() string {
-// 	return r.ID
-// }
-
-// func (r *RoomStub) Broadcast(c app.IsClient, message app.ClientAppMessage) {}
-
-// func (r *RoomStub) WriteMessage(message app.ClientAppMessage) {}
 
 type UserClientStub struct {
 	user   *app.User

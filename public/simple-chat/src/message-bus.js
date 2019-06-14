@@ -105,33 +105,32 @@
         }
     
         // change msg -> message
-        function dispatch(msg) {
-            console.log("MessageBus::dispatch msg", msg)
-            switch(msg.Type) {
+        function dispatch(message) {
+            switch(message.Type) {
                 case "CREATED": 
                     userSocketCreated()
                     return 
                 case "USER_LOBBY_DATA": 
-                    receivedUserLobbyData(msg.Payload)
+                    receivedUserLobbyData(message.Payload)
                     return 
                 case "USER_JOINED_ROOM":
-                    receivedUserJoinedRoom(msg.Payload)
+                    receivedUserJoinedRoom(message.Payload)
                     return
                 case "ROOM_BROADCAST":
-                    appRoomBroadcast(msg.RoomID, msg.Payload)
+                    appRoomBroadcast(message.RoomID, message.Payload)
                     return
                 case "ROOM_BROADCAST_MESSAGE":
-                    appRoomMessage(msg.RoomID, msg.Payload)
+                    appRoomMessage(message.RoomID, message.Payload)
                     return
                 case "ROOM_BROADCAST_INIT":
-                    appRoomBroadcastInit(msg.RoomID, msg.Payload)
+                    appRoomBroadcastInit(message.RoomID, message.Payload)
                     return
                 case "ERROR": 
-                    handleError(msg.Payload)
-                    console.log("The error: ", msg)
+                    handleError(message.Payload)
+                    console.log("The error: ", message)
                     return
                 default:
-                    console.log("App message type not recongised: ", msg)
+                    console.log("App message type not recongised: ", message)
                     return
             }
         }

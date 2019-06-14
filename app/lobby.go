@@ -17,20 +17,19 @@ type Lobby interface {
 	Broadcasts
 }
 
-func NewRoomLobby(userRepository UserRepository, roomRepository RoomService, userClientService UserClientService) Lobby {
+func NewRoomLobby(userService UserService, roomService RoomService, userClientService UserClientService) Lobby {
 	return &RoomLobby{
-		// This should be a client store
 		make(map[string]IsClient),
-		userRepository,
-		roomRepository,
+		userService,
+		roomService,
 		userClientService,
 	}
 }
 
 type RoomLobby struct {
 	clients           map[string]IsClient
-	userRepository    UserRepository
-	roomRepository    RoomService
+	userService       UserService
+	roomService       RoomService
 	userClientService UserClientService
 }
 
@@ -63,11 +62,7 @@ func (l *RoomLobby) GetClient(id string) (IsClient, error) {
 }
 
 func (l *RoomLobby) Broadcast(message ClientAppMessage) {
-	fmt.Println("Lobby::Broadcast()")
-	// This may not be needed any more as this check is don't in the client
 	if !l.IsLobbyMessage(message.Type) {
-		// To Test, use Client repo stub to test if the Client repository was called
-		// make lobby_test unit test
 		fmt.Printf("Message type of %v is not Lobby Message \n", message.Type)
 		return
 	}
@@ -136,7 +131,6 @@ func (l *RoomLobby) resolveUser(client IsClient, messagePayload string) {
 }
 
 func (l *RoomLobby) joinRoom(client IsClient, messagePayload string) {
-	fmt.Println("Lobby::joinRoom()")
 	userClient, err := l.userClientService.Resolve(client)
 	if err != nil {
 		client.WriteJson(newErrorResponse("USER_CLIENT_404"))
@@ -149,27 +143,16 @@ func (l *RoomLobby) joinRoom(client IsClient, messagePayload string) {
 		return
 	}
 
-	fmt.Println("Lobby::joinRoom() Can user join ")
-	if !l.roomRepository.CanUserJoin(userClient, roomId) {
-		fmt.Println("Lobby::joinRoom() user cant join ")
-
+	if !l.roomService.CanUserJoin(userClient, roomId) {
 		client.WriteJson(newErrorResponse(ClientResponseErrorType().USER_ROOM_AUTH))
 		return
 	}
 
-	fmt.Println("Lobby::joinRoom() Adding user client to repo ")
-	if err := l.roomRepository.AddUserClient(userClient, roomId); err != nil {
-		fmt.Println("Lobby::joinRoom() error adding UserClient to Room Repo", err)
+	if err := l.roomService.AddUserClient(userClient, roomId); err != nil {
 		client.WriteJson(newErrorResponse(ClientResponseErrorType().ADD_USER_TO_ROOM))
 		return
 	}
 
-	fmt.Printf(
-		"Lobby::joinRoom()::roomId: %#v, userId: %#v, clientId: %#v \n",
-		roomId,
-		userClient.GetUser().ID,
-		userClient.GetClient().GetID(),
-	)
 	userClient.WriteJson(newUserJoinRoomMessage(roomId))
 }
 
@@ -194,13 +177,13 @@ func (l *RoomLobby) resolveRoomId(messagePayload string) (string, error) {
 }
 
 func (l *RoomLobby) getUser(userId string) (*User, error) {
-	return l.userRepository.GetUser(userId)
+	return l.userService.GetUser(userId)
 }
 
 func (l *RoomLobby) getLobbyData(user *User) (*LobbyData, error) {
 	fmt.Println("Lobby::getLobbyData()")
-	// use repository
-	rooms, err := l.roomRepository.GetRooms(user)
+
+	rooms, err := l.roomService.GetRooms(user)
 	if err != nil {
 		return nil, err
 	}

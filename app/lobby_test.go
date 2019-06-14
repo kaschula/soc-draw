@@ -10,7 +10,7 @@ import (
 
 func TestRoomLobbyCanReturnID(t *testing.T) {
 	lobby := app.NewRoomLobby(
-		stubs.NewUserRepositoryStub(emptyUserMap()),
+		stubs.NewUserServiceStub(emptyUserMap()),
 		stubs.NewRoomServiceStub(emptyUserRoomsMap()),
 		app.NewInMemoryUserClientService(emptyClientUserClientsMap()),
 	)
@@ -24,7 +24,7 @@ func TestRoomLobbyCanRemoveUserClient(t *testing.T) {
 	userClientData := map[app.IsClient]app.UserClient{c: uc}
 
 	lobby := app.NewRoomLobby(
-		stubs.NewUserRepositoryStub(emptyUserMap()),
+		stubs.NewUserServiceStub(emptyUserMap()),
 		stubs.NewRoomServiceStub(emptyUserRoomsMap()),
 		app.NewInMemoryUserClientService(userClientData),
 	)
@@ -39,7 +39,7 @@ func TestLobbyCanResolveUserClient(t *testing.T) {
 	userClientData := map[app.IsClient]app.UserClient{c: uc}
 
 	lobby := app.NewRoomLobby(
-		stubs.NewUserRepositoryStub(emptyUserMap()),
+		stubs.NewUserServiceStub(emptyUserMap()),
 		stubs.NewRoomServiceStub(emptyUserRoomsMap()),
 		app.NewInMemoryUserClientService(userClientData),
 	)
@@ -54,7 +54,7 @@ func TestRoomLobbyCanAddRetrieveClient(t *testing.T) {
 	client := stubs.NewClientStub("1")
 
 	lobby := app.NewRoomLobby(
-		stubs.NewUserRepositoryStub(emptyUserMap()),
+		stubs.NewUserServiceStub(emptyUserMap()),
 		stubs.NewRoomServiceStub(emptyUserRoomsMap()),
 		app.NewInMemoryUserClientService(emptyClientUserClientsMap()),
 	)
@@ -74,7 +74,7 @@ func TestRoomLobbyCanAddRetrieveClient(t *testing.T) {
 
 func TestIsLobbyMessage(t *testing.T) {
 	lobby := app.NewRoomLobby(
-		stubs.NewUserRepositoryStub(emptyUserMap()),
+		stubs.NewUserServiceStub(emptyUserMap()),
 		stubs.NewRoomServiceStub(emptyUserRoomsMap()),
 		app.NewInMemoryUserClientService(emptyClientUserClientsMap()),
 	)

@@ -6,15 +6,15 @@ import (
 	"github.com/kaschula/socket-server/app"
 )
 
-func NewUserRepositoryStub(users map[string]*app.User) app.UserRepository {
-	return &UserRepositoryStub{users}
+func NewUserServiceStub(users map[string]*app.User) app.UserService {
+	return &UserServiceStub{users}
 }
 
-type UserRepositoryStub struct {
+type UserServiceStub struct {
 	users map[string]*app.User
 }
 
-func (r *UserRepositoryStub) GetUser(id string) (*app.User, error) {
+func (r *UserServiceStub) GetUser(id string) (*app.User, error) {
 	user, ok := r.users[id]
 	if !ok {
 		return nil, errors.New("User not found")
@@ -22,7 +22,3 @@ func (r *UserRepositoryStub) GetUser(id string) (*app.User, error) {
 
 	return user, nil
 }
-
-// type UserRepository interface {
-// 	GetUser(ID string) (*User, error)
-// }

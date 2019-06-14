@@ -30,14 +30,14 @@ func main() {
 		socketServer.NewDefaultRoom("R:2", "Second Room", appServer),
 	}
 
-	roomRepository := map[*socketServer.User][]socketServer.RoomI{
+	roomService := map[*socketServer.User][]socketServer.RoomI{
 		userOne:   globalRooms,
 		userTwo:   globalRooms,
 		userThree: globalRooms,
 		userFour:  globalRooms,
 	}
 
-	app := newApp(users, roomRepository)
+	app := newApp(users, roomService)
 	fs := http.FileServer(http.Dir(appClientPath))
 	http.Handle("/", fs)
 
@@ -52,13 +52,13 @@ func main() {
 
 func newApp(
 	users map[string]*socketServer.User,
-	roomRepository map[*socketServer.User][]socketServer.RoomI,
+	roomRepo map[*socketServer.User][]socketServer.RoomI,
 ) *socketServer.App {
-	roomService := socketServer.NewDefaultRoomService(roomRepository)
-	userRepository := socketServer.NewInMemoryUserRepository(users)
+	roomService := socketServer.NewDefaultRoomService(roomRepo)
+	userService := socketServer.NewInMemoryUserService(users)
 	userClientService := socketServer.NewInMemoryUserClientService(nil)
 
-	lobby := socketServer.NewRoomLobby(userRepository, roomService, userClientService)
+	lobby := socketServer.NewRoomLobby(userService, roomService, userClientService)
 
 	factory := &socketServer.GorillaWebsocketUpgradeFactory{}
 	clientService := socketServer.NewDefaultClientService(factory)

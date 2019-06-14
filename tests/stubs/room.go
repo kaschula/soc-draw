@@ -22,8 +22,9 @@ type RoomStub struct {
 	BroadcastData      []app.ClientAppMessage
 }
 
-func (r *RoomStub) AddUserClient(client app.UserClient) {
+func (r *RoomStub) AddUserClient(client app.UserClient) error {
 	r.AddUserClientCount++
+	return nil
 }
 
 func (r *RoomStub) GetID() string {

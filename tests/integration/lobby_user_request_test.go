@@ -13,7 +13,7 @@ import (
 type testData struct {
 	title                         string
 	client                        *ClientStub2
-	userRepository                app.UserRepository
+	userService                   app.UserService
 	roomService                   app.RoomService
 	userClientService             UserClientServiceStub
 	messageToSend                 string
@@ -39,7 +39,7 @@ func runUserRequestTest(test testData) func(t *testing.T) {
 	return func(t *testing.T) {
 		client := test.client
 
-		lobby := app.NewRoomLobby(test.userRepository, test.roomService, &test.userClientService)
+		lobby := app.NewRoomLobby(test.userService, test.roomService, &test.userClientService)
 		lobby.AddClient(client)
 
 		go client.Listen()
@@ -59,7 +59,7 @@ func runUserRequestTest(test testData) func(t *testing.T) {
 		// The expected and actual are the wrong way round
 		Equal(t, appMessage.Type, test.expectedAppMessageType, "appMessageType does not match")
 		Equal(t, appMessage.Payload, test.expectedPayload, "Payload does not match")
-		Equal(t, test.userClientService.createUserClientCalls, test.expectedcreateUserClientCalls, "User Client Repository Create Method ")
+		Equal(t, test.userClientService.createUserClientCalls, test.expectedcreateUserClientCalls, "User Client Service Create Method ")
 	}
 }
 
@@ -73,7 +73,7 @@ func ALobbyCanGetAUserRequestAndSendUserResponseWithRoomDataSetUp() testData {
 		nil,
 	})
 	user := app.NewUser("UserID124")
-	userRepository := &app.InMemoryUserRepository{
+	userService := &app.InMemoryUserService{
 		map[string]*app.User{
 			"UserID124": user,
 		},
@@ -93,7 +93,7 @@ func ALobbyCanGetAUserRequestAndSendUserResponseWithRoomDataSetUp() testData {
 	return testData{
 		title:                  "Test A Lobby Can Recieve A User Request And Send Lobby Data Response",
 		client:                 client,
-		userRepository:         userRepository,
+		userService:            userService,
 		roomService:            roomService,
 		userClientService:      userClientService,
 		messageToSend:          "{\"user\": \"UserID124\"}",
@@ -114,7 +114,7 @@ func AnErrorResponseIsSentToTheClientWhenUserCantBeResolvedSetUp() testData {
 		nil,
 	})
 
-	userRepository := &app.InMemoryUserRepository{
+	userService := &app.InMemoryUserService{
 		map[string]*app.User{},
 	}
 
@@ -125,7 +125,7 @@ func AnErrorResponseIsSentToTheClientWhenUserCantBeResolvedSetUp() testData {
 	return testData{
 		title:                         "Test An Error Response Is Sent To The Client When A User Cant Be Resolved",
 		client:                        client,
-		userRepository:                userRepository,
+		userService:                   userService,
 		roomService:                   roomService,
 		userClientService:             userClientService,
 		messageToSend:                 "{\"user\": \"NoExistantID\"}",
@@ -146,7 +146,7 @@ func AnErrorResponseIsSentToTheClientWhenLobbyDataCantBeResolvedSetUp() testData
 	})
 
 	user := app.NewUser("UserID124")
-	userRepository := &app.InMemoryUserRepository{
+	userService := &app.InMemoryUserService{
 		map[string]*app.User{
 			"UserID124": user,
 		},
@@ -159,7 +159,7 @@ func AnErrorResponseIsSentToTheClientWhenLobbyDataCantBeResolvedSetUp() testData
 	return testData{
 		title:                         "An Error Response Is Sent To The Client When Lobby Data Cant Be Resolved",
 		client:                        client,
-		userRepository:                userRepository,
+		userService:                   userService,
 		roomService:                   roomService,
 		userClientService:             userClientService,
 		messageToSend:                 "{\"user\": \"UserID124\"}",
@@ -180,7 +180,7 @@ func AnErrorResponseIsSentToTheClientWhenUserClientCantBeCreatedSetUp() testData
 	})
 
 	user := app.NewUser("UserID124")
-	userRepository := &app.InMemoryUserRepository{
+	userService := &app.InMemoryUserService{
 		map[string]*app.User{
 			"UserID124": user,
 		},
@@ -200,7 +200,7 @@ func AnErrorResponseIsSentToTheClientWhenUserClientCantBeCreatedSetUp() testData
 	return testData{
 		title:                         "An Error Response Is Sent To The Client When Lobby Data Cant Be Resolved",
 		client:                        client,
-		userRepository:                userRepository,
+		userService:                   userService,
 		roomService:                   roomService,
 		userClientService:             userClientService,
 		messageToSend:                 "{\"user\": \"UserID124\"}",

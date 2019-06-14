@@ -11,12 +11,13 @@ import (
 
 func TestARoomStartsOnceEnoughClientHaveBeenAddedAndMessagesCanBeBroadcast(t *testing.T) {
 	roomApp := NewRoomAppStub()
-	user := app.NewUser("1")
+	u1 := app.NewUser("1")
+	u2 := app.NewUser("2")
 	clientOne := newClientStub("client:1")
 	clientTwo := newClientStub("client:2")
 
-	userClientOne := app.NewUserClient(clientOne, user)
-	userClientTwo := app.NewUserClient(clientTwo, user)
+	userClientOne := app.NewUserClient(clientOne, u1)
+	userClientTwo := app.NewUserClient(clientTwo, u2)
 
 	room := app.NewDefaultRoom("1", "R2", roomApp)
 	room.AddUserClient(userClientOne)
@@ -34,12 +35,13 @@ func TestARoomStartsOnceEnoughClientHaveBeenAddedAndMessagesCanBeBroadcast(t *te
 
 func TestARoomDoesNotBroadCastToClientsIfNotEnoughInRoom(t *testing.T) {
 	roomApp := NewRoomAppStub()
-	user := app.NewUser("1")
+	u1 := app.NewUser("1")
+	u2 := app.NewUser("2")
 	clientOne := newClientStub("client:1")
 	clientTwo := newClientStub("client:2")
 
-	userClientOne := app.NewUserClient(clientOne, user)
-	userClientTwo := app.NewUserClient(clientTwo, user)
+	userClientOne := app.NewUserClient(clientOne, u1)
+	userClientTwo := app.NewUserClient(clientTwo, u2)
 
 	room := app.NewDefaultRoom("1", "R2", roomApp)
 	room.AddUserClient(userClientOne)
@@ -59,7 +61,7 @@ func TestARoomDoesNotBroadCastToClientsIfNotEnoughInRoom(t *testing.T) {
 	Equal(t, clientTwo.WrittenMessages[0].Payload, "Second Payload", "Incorrect Payload")
 }
 
-func TestThatAMessageWrittenToARoomIsPassedToTheRoomApp(t *testing.T) {
+func TestThatTheSameUserWithDifferentClientsCantJoinTwice(t *testing.T) {
 	roomApp := NewRoomAppStub()
 	user := app.NewUser("1")
 	clientOne := newClientStub("client:1")
@@ -69,20 +71,30 @@ func TestThatAMessageWrittenToARoomIsPassedToTheRoomApp(t *testing.T) {
 	userClientTwo := app.NewUserClient(clientTwo, user)
 
 	room := app.NewDefaultRoom("1", "R2", roomApp)
-	message := app.NewClientAppMessage(
-		nil,
-		app.AppMessage{app.GetResponseTypes().ROOM_BROADCAST, "Payload"},
-	)
-	// should start room app
-	room.AddUserClient(userClientOne)
-	room.AddUserClient(userClientTwo)
 
-	room.WriteMessage(message)
+	errOne := room.AddUserClient(userClientOne)
+	errTwo := room.AddUserClient(userClientTwo)
 
-	Equal(t, roomApp.startCalled, 1, "Start() should have been called once")
-	Equal(t, roomApp.writeCalled, 1, "WriteMessage() should have been called once")
-	Equal(t, len(roomApp.written), 1, "There should one message written to the app")
-	Equal(t, roomApp.written[0].GetPayload(), "Payload", "Payload should match orginal message")
+	Nil(t, errOne, "UserClient one should be able to join")
+	Error(t, errTwo, "UserClient two shouldnt be able to join because User has already joined")
+}
+
+func TestThatAUserClientCanBeRemovedFromTheRoom(t *testing.T) {
+	roomApp := NewRoomAppStub()
+	user := app.NewUser("1")
+	clientOne := newClientStub("client:1")
+	uc := app.NewUserClient(clientOne, user)
+
+	room := app.NewDefaultRoom("1", "R2", roomApp)
+
+	errOne := room.AddUserClient(uc)
+	errTwo := room.AddUserClient(uc)
+	room.RemoveUserClient(uc)
+	errThree := room.AddUserClient(uc)
+
+	Nil(t, errOne, "UserClient should be able to join with first attempt")
+	Error(t, errTwo, "UserClient two shouldnt be able to join with second attemp")
+	Nil(t, errThree, "UserClient should be able again after being removed")
 }
 
 type RoomAppStub struct {

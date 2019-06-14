@@ -25,7 +25,7 @@ func TestTwoClientsCanJoinTheLobbyAndARoomAndBeginMessagingEachOther(t *testing.
 		"1": userOne,
 		"2": userTwo,
 	}
-	userRepository := app.NewInMemoryUserRepository(users)
+	userService := app.NewInMemoryUserService(users)
 
 	simpleApp := app.NewSimpleRoomApplication(stubs.NewPrintsStub())
 	room := app.NewRoom("r1", "Chat", 2, 4, simpleApp)
@@ -37,7 +37,7 @@ func TestTwoClientsCanJoinTheLobbyAndARoomAndBeginMessagingEachOther(t *testing.
 
 	userClientService := app.NewInMemoryUserClientService(nil)
 
-	lobby := app.NewRoomLobby(userRepository, roomService, userClientService)
+	lobby := app.NewRoomLobby(userService, roomService, userClientService)
 
 	go simpleApp.Run()
 	go clientOne.Listen()
