@@ -6,6 +6,8 @@ import (
 	"fmt"
 )
 
+const ROOM_LOBBY_ID = "ROOM_LOBBY"
+
 type Lobby interface {
 	AddClient(client IsClient)
 	GetClient(id string) (IsClient, error)
@@ -33,7 +35,7 @@ type RoomLobby struct {
 }
 
 func (l *RoomLobby) GetID() string {
-	return "Lobby"
+	return ROOM_LOBBY_ID
 }
 
 func (l *RoomLobby) AddClient(client IsClient) {
@@ -42,12 +44,10 @@ func (l *RoomLobby) AddClient(client IsClient) {
 	client.SubscribeLobby(l)
 }
 
-// Untested
 func (l *RoomLobby) Remove(client IsClient) {
 	delete(l.clients, client.GetID())
 }
 
-// Untested
 func (l *RoomLobby) ResolveUserClient(c IsClient) (UserClient, error) {
 	return l.userClientService.Resolve(c)
 }
@@ -87,6 +87,14 @@ func (l *RoomLobby) Broadcast(message ClientAppMessage) {
 		// Should log unreconhgised lobby message type
 		return
 	}
+}
+
+func (l *RoomLobby) IsLobbyMessage(m string) bool {
+	return isLobbyMessage(m)
+}
+
+func (l *RoomLobby) RemoveUserClient(uc UserClient) {
+	l.userClientService.Delete(uc)
 }
 
 func (l *RoomLobby) resolveUser(client IsClient, messagePayload string) {
@@ -236,18 +244,9 @@ func newUserJoinRoomMessage(roomId string) ClientResponse {
 	return ClientResponse{Type: GetResponseTypes().USER_JOINED_ROOM, Payload: string(b), RoomID: roomId}
 }
 
-func (l *RoomLobby) IsLobbyMessage(m string) bool {
-	return isLobbyMessage(m)
-}
-
 func isLobbyMessage(m string) bool {
 	return m == GetRequestTypes().LOBBY_USER_JOIN_REQUEST ||
 		m == GetRequestTypes().LOBBY_ROOM_REQUEST
-}
-
-// Untests
-func (l *RoomLobby) RemoveUserClient(uc UserClient) {
-	// To Implement when needed
 }
 
 type LobbyData struct {

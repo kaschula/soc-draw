@@ -285,3 +285,5 @@ func (r *UserClientServiceStub) CreateAndStoreUserClient(_ *app.User, _ app.IsCl
 func (r *UserClientServiceStub) Resolve(client app.IsClient) (app.UserClient, error) {
 	return nil, nil
 }
+
+func (r *UserClientServiceStub) Delete(uc app.UserClient) {}

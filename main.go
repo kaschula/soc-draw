@@ -56,7 +56,7 @@ func newApp(
 ) *socketServer.App {
 	roomService := socketServer.NewDefaultRoomService(roomRepository)
 	userRepository := socketServer.NewInMemoryUserRepository(users)
-	userClientService := socketServer.NewInMemoryUserClientService()
+	userClientService := socketServer.NewInMemoryUserClientService(nil)
 
 	lobby := socketServer.NewRoomLobby(userRepository, roomService, userClientService)
 

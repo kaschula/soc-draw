@@ -83,13 +83,7 @@ func (c *DefaultClient) close() {
 func (c *DefaultClient) WriteJson(message ClientResponse) error {
 	err := c.socket.WriteJSON(&message)
 
-	fmt.Println("Client::WriteJson() ID", c.GetID())
-	fmt.Println("Client::WriteJson() message", message)
-	fmt.Println("Client::WriteJson() err", err)
-	fmt.Println("--------------------------------------")
-
 	return err
-	// return c.socket.WriteJSON(&message)
 }
 
 func (c *DefaultClient) Subscribe(b Broadcasts) {

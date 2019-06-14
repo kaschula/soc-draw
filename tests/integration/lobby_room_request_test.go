@@ -77,7 +77,7 @@ func AUserRequestToJoinARoomItHasAccessTo() roomTest {
 			},
 		},
 	}
-	userClientService := app.NewInMemoryUserClientService()
+	userClientService := app.NewInMemoryUserClientService(nil)
 	userClientService.CreateAndStoreUserClient(user, client)
 
 	return roomTest{
@@ -106,7 +106,7 @@ func AUserGetsAnErrorResponseWhenUserClientCanNotBeResolved() roomTest {
 	roomService := &app.DefaultRoomService{
 		make(map[*app.User][]app.RoomI),
 	}
-	userClientService := app.NewInMemoryUserClientService()
+	userClientService := app.NewInMemoryUserClientService(nil)
 
 	return roomTest{
 		"A User Gets An Error Response When UserClient Can Not Be Resolved",
@@ -136,7 +136,7 @@ func AUserGetsAnErrorResponseWhenRoomIdPayloadIsInvalid() roomTest {
 		make(map[*app.User][]app.RoomI),
 	}
 
-	userClientService := app.NewInMemoryUserClientService()
+	userClientService := app.NewInMemoryUserClientService(nil)
 	userClientService.CreateAndStoreUserClient(user, client)
 
 	return roomTest{
@@ -170,7 +170,7 @@ func AUserGetsAnErrorResponseWhenUserCanNotJoinRoom() roomTest {
 			},
 		},
 	}
-	userClientService := app.NewInMemoryUserClientService()
+	userClientService := app.NewInMemoryUserClientService(nil)
 	userClientService.CreateAndStoreUserClient(user, client)
 
 	return roomTest{
@@ -206,7 +206,7 @@ func AUserGetsAnErrorResponseWhenUserTrysToJoinARoom() roomTest {
 	}
 	roomService := roomRepositoryStub{inMemRoomRepo}
 
-	userClientService := app.NewInMemoryUserClientService()
+	userClientService := app.NewInMemoryUserClientService(nil)
 	userClientService.CreateAndStoreUserClient(user, client)
 
 	return roomTest{

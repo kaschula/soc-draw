@@ -40,23 +40,14 @@ func NewRoom(id, name string, minimumClients, maxClients int, roomApp RoomApplic
 func (r *BaseRoom) AddUserClient(uc UserClient) {
 	r.clients = append(r.clients, uc)
 
-	// subscribe room to client
 	client := uc.GetClient() // <-------- Not Unit Untested
 	client.Subscribe(r)
-	fmt.Println("Room::AddUserClient() UC added")
 	r.updated()
 }
 
 // retest
 func (r *BaseRoom) updated() {
-	fmt.Println("Room::updated()")
-	// if r.isRunning() || !r.isReady() {
-	// 	fmt.Println("Room::updated() Room is running or not ready: (running) (isReady)", r.isRunning(), !r.isReady())
-	// 	return
-	// }
-
 	if !r.isReady() {
-		fmt.Println("Room::updated() is not ready", !r.isReady())
 		if r.isRunning() {
 			fmt.Println("Room::updated() Room is running and not ready: room should stop")
 			// r.stop()
@@ -65,7 +56,6 @@ func (r *BaseRoom) updated() {
 		return
 	}
 
-	fmt.Println("Room::updated() room is ready starting room")
 	r.start()
 }
 
@@ -156,7 +146,6 @@ func (r *BaseRoom) WriteMessage(message ClientAppMessage) {
 	r.roomApp.WriteMessage(NewRoomMessage(r, message.Payload))
 }
 
-// Untested
 func isRoomType(t string) bool {
 	responses := GetResponseTypes()
 
@@ -166,7 +155,6 @@ func isRoomType(t string) bool {
 		t == responses.ROOM_BROADCAST_MESSAGE
 }
 
-//Untested
 func (r *BaseRoom) RemoveUserClient(uc UserClient) {
 	// This is a terrible way of doing this, need to change to slice to map
 

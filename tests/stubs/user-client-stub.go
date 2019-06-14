@@ -3,16 +3,16 @@ package stubs
 import "github.com/kaschula/socket-server/app"
 
 type UserClientStub struct {
-	user   *app.User
-	client app.IsClient
+	User   *app.User
+	Client app.IsClient
 }
 
 func (u *UserClientStub) GetUser() *app.User {
-	return u.user
+	return u.User
 }
 
 func (u *UserClientStub) GetClient() app.IsClient {
-	return u.client
+	return u.Client
 }
 
 func (u *UserClientStub) WriteJson(client app.ClientResponse) error {

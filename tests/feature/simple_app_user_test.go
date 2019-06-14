@@ -35,7 +35,7 @@ func TestTwoClientsCanJoinTheLobbyAndARoomAndBeginMessagingEachOther(t *testing.
 	}
 	roomService := app.NewDefaultRoomService(userRooms)
 
-	userClientService := app.NewInMemoryUserClientService()
+	userClientService := app.NewInMemoryUserClientService(nil)
 
 	lobby := app.NewRoomLobby(userRepository, roomService, userClientService)
 

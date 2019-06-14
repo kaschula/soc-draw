@@ -5,10 +5,15 @@ import "errors"
 type UserClientService interface {
 	CreateAndStoreUserClient(user *User, client IsClient) error
 	Resolve(IsClient) (UserClient, error)
+	Delete(UserClient)
 }
 
-func NewInMemoryUserClientService() UserClientService {
-	return &InMemoryUserClientService{make(map[IsClient]UserClient)}
+func NewInMemoryUserClientService(userClients map[IsClient]UserClient) UserClientService {
+	if userClients == nil {
+		userClients = map[IsClient]UserClient{}
+	}
+
+	return &InMemoryUserClientService{userClients}
 }
 
 type InMemoryUserClientService struct {
@@ -28,6 +33,10 @@ func (s *InMemoryUserClientService) Resolve(client IsClient) (UserClient, error)
 	}
 
 	return userClient, nil
+}
+
+func (s *InMemoryUserClientService) Delete(uc UserClient) {
+	delete(s.userClients, uc.GetClient())
 }
 
 // User Client struct
