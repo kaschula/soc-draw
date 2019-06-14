@@ -3,7 +3,7 @@ package stubs
 import (
 	"strings"
 
-	"github.com/kaschula/socket-server/app"
+	"github.com/kaschula/soc-draw/app"
 )
 
 func NewClientStub(id string) *ClientStub {

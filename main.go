@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	socketServer "github.com/kaschula/socket-server/app"
+	socketServer "github.com/kaschula/soc-draw/app"
 )
 
 func main() {

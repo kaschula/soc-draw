@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/kaschula/socket-server/app"
+	"github.com/kaschula/soc-draw/app"
 	. "github.com/stretchr/testify/assert"
 )
 

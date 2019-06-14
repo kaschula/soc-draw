@@ -3,7 +3,7 @@ package stubs
 import (
 	"errors"
 
-	"github.com/kaschula/socket-server/app"
+	"github.com/kaschula/soc-draw/app"
 )
 
 func NewUserServiceStub(users map[string]*app.User) app.UserService {
