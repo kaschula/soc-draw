@@ -1,17 +1,15 @@
 ((container) => {
     function SocDrawLobbyController(uiService, sockDrawClient, socketFactory, roomApplication) {
-        // events
-        function enterButtonHandler2(event) {
+        function enterButtonHandler(event) {
             event.preventDefault()
         
             username = uiService.getUsernameValue()
             sockDrawClient.setGlobalUsername(username)
         
-            // app.setSocket(createConnection(app.getSocketUrl()))    
             sockDrawClient.setSocket(socketFactory.createConnection(sockDrawClient.getSocketUrl()))    
         }
     
-        function roomSelectHandler2(event) {
+        function roomSelectHandler(event) {
             event.preventDefault()
             
             const socket = sockDrawClient.getSocket()
@@ -67,8 +65,8 @@
             uiService.hideCurrentRoom()
         
             // Page events
-            uiService.addEnterFormClick(enterButtonHandler2)
-            uiService.setRoomSelectHandler(roomSelectHandler2)
+            uiService.addEnterFormClick(enterButtonHandler)
+            uiService.setRoomSelectHandler(roomSelectHandler)
         }
     }
 

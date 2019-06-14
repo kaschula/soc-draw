@@ -73,8 +73,9 @@
         }
     
         const currentRoomWaitingForStatus = () => {
-            // const currentRoom = _$("#current-room")
-            // currentRoom.empty()
+            const applicationWindow = _$("#application-window")
+            applicationWindow.empty()
+
             showRoomMessage("Room waiting to start", true)
             // currentRoom.append(components.roomWaitingComponent())
         } 
@@ -88,9 +89,13 @@
     
         // ChatApp code should be moved out of UI service
         const initialiseAppWindow = () => {
+            const applicationWindow = _$("#application-window")
+            // applicationWindow.empty()
+            if (applicationWindow.length) {
+                return
+            }
+
             const currentRoom = _$("#current-room")
-            // currentRoom.empty()
-            // need to remove room waiting status of present
             currentRoom.append(components.applicationWindowComponent())
         }
     

@@ -1,6 +1,8 @@
 ((container) => {
     SimpleChatApp.prototype = container.roomApplicationInterface
     function SimpleChatApp(uiService, lobby) {
+        const simpleAppDivId = 'simple-chat-message'; 
+
         function sendMessageHandler(event) {
             event.preventDefault()
 
@@ -51,13 +53,11 @@
             state.messages.forEach((message) => {
                 messages.append(messageComponent(username, message))
             })
-
-
         }
         
         function messagingAppComponent() {
             return (`
-                <div id="simple-chat-message" class="row">
+                <div id="${simpleAppDivId}" class="row">
                     <div id="message-board" class="col-md-12">
                         <div id="messages-row" class="row">
                             <div class="messages" class="col-md-12">
@@ -91,25 +91,22 @@
             `)
         }
         
-        
-        // -------------- App.Message stuff
         function createMessageJson(username, roomId, message) {
             const eventMessage = {
                 messageType: "ROOM_REQUEST",
                 payLoad: JSON.stringify({username, roomId, message, requestType: "ROOM_EVENT"})
             }
         
-            // Send new message type
-            // Need to change recieve Message as well so it canbe added to board
             return JSON.stringify(eventMessage);
         }
 
         this.initialise = function(state) {
-            console.log('roomApplication.initialise() called')
             const appWindow = uiService.query("#application-window")
-            const x = messagingAppComponent();
-            appWindow.append(x)
-        
+
+            if (!uiService.query(`#${simpleAppDivId}`).length) {
+                appWindow.append(messagingAppComponent())
+            }
+
             // uiService can only Query
             uiService.addChatMessageSubmit(sendMessageHandler)
         
