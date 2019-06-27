@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	socketServer "github.com/kaschula/socket-server/app"
+	socketServer "github.com/kaschula/soc-draw/app"
 )
 
 // // This Is the simplest application,

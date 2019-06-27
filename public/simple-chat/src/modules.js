@@ -1,3 +1,3 @@
-// containers for modules
+// container for modules
 let modules = {};
 

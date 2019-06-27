@@ -1,20 +1,14 @@
 ((container) => {
-    // Object that handles the Lobby and Room Data 
-    // ?? Should this be a model
-    function SocDrawLobbyClient() {
-        // private
-        // const uiService = newUIService($);
+    function SocDrawLobbyClient(websocketUrl) {
         const roomStateContainer = {};
         const roomsInitialised = {};
         const roomsJoined = {}
-        const url = 'localhost:8089/ws' // Dep
+        const url = websocketUrl
     
-        let globalUsername; // is this being used
+        let globalUsername;
         let globalUser;
         let globalCurrentRoomId;
         let socket;
-    
-        // public
     
         this.getSocketUrl = function() {
             return url;
@@ -66,7 +60,6 @@
         }
         
         this.roomIsInitialisedAndStateExists = function(roomId) {
-            console.log("roomIsInitialisedAndStateExists::", roomsInitialised[roomId], roomStateContainer[roomId])
             return roomsInitialised[roomId] && !!roomStateContainer[roomId];
         }
         

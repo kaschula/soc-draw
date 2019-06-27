@@ -1,93 +1,76 @@
 <!doctype html>
 <html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<head>
-    <meta charset="utf-8">
-    <title></title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="apple-touch-icon" href="icon.png">
+        
+        <link rel="stylesheet" href="lib/css/bootstrap.css">
+        <link rel="stylesheet" href="css/main.css">
 
-    <link rel="apple-touch-icon" href="icon.png">
-    <!-- Place favicon.ico in the root directory -->
+        <meta name="theme-color" content="#fafafa">
+    </head>
+    <body>
+        <!--[if IE]>
+        <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+        <![endif]-->
 
-    <!--<link rel="stylesheet" href="css/normalize.css">-->
-    
-    <link rel="stylesheet" href="lib/css/bootstrap.css">
-    <link rel="stylesheet" href="css/main.css">
+        <div class="container">
+            <div class="row">
+                <h1 class="col-md-12">A Very Simple Chat Client</h1>
+            </div>
+            <hr>
+            <div class="row">
+                <div id="error-container" class="col-md-12">
 
-    <meta name="theme-color" content="#fafafa">
-</head>
-
-<body>
-    <!--[if IE]>
-    <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
-    <![endif]-->
-
-    <!-- Add your site or application content here -->
-    <h1>A Very Simple Chat Client</h1>
-    <div class="container">
-        <div class="row">
-            <div id="error-container" class="col-md-12">
-
+                </div>
+            </div>
+            <div class="row" >
+                <div id="entry-form-container" class="col-md-12">
+                    <h2 class="text-center">Please Login</h2>
+                    <form id="entry-form">
+                        <div class="form-group">
+                            <label class="">Username: </label>
+                            <input class="form-control" name="username" type="text">
+                        </div>
+                        <div class="form-group">
+                            <button id="enter-form-submit" class="btn btn-primary col-sm-12" type="submit">Enter</button> 
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="row">
+                <div id="rooms-container" class="list-group w-100">
+                    <p class="list-group-item" >Current room selected: <span id="current-room-name">No Room Selected</span></p>
+                </div>
+            </div>
+            <div class="row" >
+                <div id="current-room" class="col-md-12">
+                    <div id="current-room-log"></div>
+                </div>
             </div>
         </div>
-        <div class="row">
-            <div id="entry-form-container" class="col-md-12">
-                <form id="entry-form">
-                    <label>Username</label>
-                    <input name="username" type="text">
-                    <!-- <label>Room</label>
-                    <input name="room" type="text"> -->
-                    <button id="enter-form-submit">Enter</button> 
-                </form>
-            </div>
-        </div>
-        <div class="row">
-            <div id="rooms-container" class="col-md-12"><p>room container <span id="current-room-name">No Room Selected</span></p></div>
-        </div>
-        <div class="row">
-            <div id="current-room" class="col-md-12">
-                <div id="current-room-log"></div>
-            </div>
-        </div>
-    </div>
 
-    <script src="lib/js/modernizr.min.js"></script>
-    <script src="lib/js/jquery-3.3.1.min.js"></script>
-    <!--Modules-->
-    <script src="src/modules.js"></script>    
-    <script src="src/soc-draw-lobby-client.js"></script>    
-    <script src="src/components.js"></script>    
-    <script src="src/message-bus.js"></script>    
-    <script src="src/ui-service.js"></script>    
-    <script src="src/socket-factory.js"></script>    
-    <script src="src/soc-draw-lobby-controller.js"></script>    
-    <script src="src/message-factory.js"></script>    
-    <script src="src/room-application.js"></script>    
-    <!--End Modules-->
+        <script src="lib/js/modernizr.min.js"></script>
+        <script src="lib/js/jquery-3.3.1.min.js"></script>
+        <!--Modules-->
+        <script src="src/modules.js"></script>    
+        <script src="src/soc-draw-lobby-client.js"></script>    
+        <script src="src/components.js"></script>    
+        <script src="src/message-bus.js"></script>    
+        <script src="src/ui-service.js"></script>    
+        <script src="src/socket-factory.js"></script>    
+        <script src="src/soc-draw-lobby-controller.js"></script>    
+        <script src="src/message-factory.js"></script>    
+        <script src="src/room-application.js"></script>    
+        <!--End Modules-->
 
-    <!-- Room Application-->
-    <script src="src/simple-chat-application.js"></script>    
+        <!-- Room Application-->
+        <script src="src/simple-chat-application.js"></script>    
 
-    <script src="src/main.js"></script>    
-</body>
-
+        <script src="src/main.js"></script>    
+    </body>
 </html>
-
-<!--
-The General Flow
-
-- Authenticate the User
-- Request To Join Lobby
-- should recive rooms Display rooms
-- Request to Join room
-- Once room is successful display room waiting
-- Once room has started
-- Begin writing messages to the room
-
-
-
-
-
-
--->

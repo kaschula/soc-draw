@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	socketServer "github.com/kaschula/socket-server/app"
+	socketServer "github.com/kaschula/soc-draw/app"
 )
 
 func main() {
@@ -13,10 +13,10 @@ func main() {
 	go appServer.Run()
 
 	// Data
-	userOne := &socketServer.User{"U:1"}
-	userTwo := &socketServer.User{"U:2"}
-	userThree := &socketServer.User{"U:3"}
-	userFour := &socketServer.User{"U:4"}
+	userOne := &socketServer.User{"user:1"}
+	userTwo := &socketServer.User{"user:2"}
+	userThree := &socketServer.User{"user:3"}
+	userFour := &socketServer.User{"user:4"}
 
 	users := map[string]*socketServer.User{
 		userOne.ID:   userOne,

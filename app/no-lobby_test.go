@@ -3,9 +3,9 @@ package app_test
 import (
 	"testing"
 
-	"github.com/kaschula/socket-server/tests/stubs"
+	"github.com/kaschula/soc-draw/tests/stubs"
 
-	"github.com/kaschula/socket-server/app"
+	"github.com/kaschula/soc-draw/app"
 	. "github.com/stretchr/testify/assert"
 )
 

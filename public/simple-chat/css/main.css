@@ -18,12 +18,12 @@
     margin: 1px;
 }
 
-#rooms-container {
-    display: block;
-    /* height: 150px; */
-    border: 1px solid black;
-    margin: 1px;
-    background-color: aquamarine
+.sd-display-inline {
+    display: inline;
+}
+
+.room-btn{
+    margin-top: 1px 
 }
 
 #error-container p {

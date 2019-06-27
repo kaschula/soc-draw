@@ -1,6 +1,6 @@
 package stubs
 
-import "github.com/kaschula/socket-server/app"
+import "github.com/kaschula/soc-draw/app"
 
 type UserClientStub struct {
 	User   *app.User

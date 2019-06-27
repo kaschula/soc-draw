@@ -1,6 +1,6 @@
 package stubs
 
-import "github.com/kaschula/socket-server/app"
+import "github.com/kaschula/soc-draw/app"
 
 func NewRoomStub(id, name string) *RoomStub {
 	return &RoomStub{

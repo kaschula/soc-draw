@@ -5,10 +5,12 @@ if (!$) {
     throw new Error('jQuery not found');
 }
 
+const websocketUrl = 'localhost:8089/ws'
+
 function createApp() {
     const components = new modules.ComponentLibrary()   
     const uiService = new modules.UIService($, components);
-    const lobby = new modules.SocDrawLobbyClient();
+    const lobby = new modules.SocDrawLobbyClient(websocketUrl);
     
     const messageFactory = new modules.MessageFactory()
     const roomApp = modules.buildRoomApplication(uiService, lobby)
