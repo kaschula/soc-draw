@@ -108,11 +108,6 @@
             const appWindow = uiService.query("#application-window")
             appWindow.append(messagingAppComponent())
 
-            if (!uiService.query(`#${simpleAppDivId}`).length) {
-                // ToDo: this check should be responsability of the room not a room application
-                appWindow.append(messagingAppComponent())
-            }
-
             addChatMessageSubmit(uiService)
             hydrateApplicationWindow(state)
         }
