@@ -1,83 +1,167 @@
-# [Change Project Name] Socket Server 
+# Soc-Draw framework
 
-This application will provide means of authenticating and creating web-sockets from client requests. It provides functionality for allowing sockets to enter rooms with where by communication with other sockets is facilatated. The Intent of the application is to provide a framework in which to build real time socket appliucation around. This server will pass messages onto a an application that will handle the specific application payloads. IOn theory this server will be able to be used for simple chat application to multiplayer games.
+This project is the early stages of a framework built with the intent of allowing easy development multi-user real time socket applications. The `soc-draw` application intends to provide a framework that manages user's through lobbies and rooms to begin a socket based web application. The socket application will be built into parts; a Frontend (client) and the Backend application.
+
+### The General Idea, what soc-draw actually does
+
+This framework allows users to login into a lobby for a `room-application`. A user logs into the soc-draw application. This enters them into the lobby. Once in the lobby a user will be able to see what rooms they have access to. From here they can enter a room. Once they have entered a room the room is in aa state of being ready to start. The rooms in the simple-chat-application included as example in this repository require at least two users to be be in the room. Once a room has enough members it the room application set up begins. See the example below for information. 
+
+The user can interact with the room application and the soc-draw frontend client will continue to update the application with state received from the server and send messages (usually some kind of user event) to the server application.
+
+### The `Room-Application`
+
+This is defined by a user of the framework. It involves two parts, the frontend room application and the backend room application.
+
+The backend part of the room application is responsible for:
+1. Handling messages from the front client. These messages will typically be user events that will result in a state change. 
+2. Sending state to the room to be broadcast back to every room client.
+
+The frontend should be responsible for handling and sending user events to the server and processing received application state.
+
+The soc-draw framework provides an application <div> that a room application can attach to and build what ever mark up is required for a room app. This would be done in the room-applications initialise method.
+
+Both the `room-application` FE and BE need to provide an update function. 
+
 
 ## Motivation
-This project begun as away of experimenting with GO Lang's concurrency mechanisms and exploration the langauge further. .... write more about the actual project and gaming side.
 
+This project was undertaken to help develop my knowledge and understanding of the Go-Lang language, web sockets and the ideas covered by this challenging area of real-time applications.
+
+My focus in this project has been on the golang code. The javascript code I have tried to keep as minimal and clean as possible without using any frameworks or tooling. 
 
 ## Build status
-Build status of continus integration i.e. travis, appveyor etc. Ex. - 
 
-[![Build Status](https://travis-ci.org/akashnimare/foco.svg?branch=master)](https://travis-ci.org/akashnimare/foco)
-[![Windows Build Status](https://ci.appveyor.com/api/projects/status/github/akashnimare/foco?branch=master&svg=true)](https://ci.appveyor.com/project/akashnimare/foco/branch/master)
-
-## Code style
-If you're using any code style like xo, standard etc. That will help others while contributing to your project. Ex. -
-
-[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://github.com/feross/standard)
- 
-## Screenshots
-Include logo/demo screenshot etc.
+The master version of this project builds using the go compiler. It contains only in-memory versions of the services used for persisted enities such as users and rooms. This means all the room and user data is set up in the main.go as map data. These services are in a primitive state and will evolve in the future. For example Authentication at the moment is done by entering in a username that exists in the service. In the future a proper password authentication system will be used.
 
 ## Tech/framework used
-Ex. -
 
-<b>Built with</b>
-- [Electron](https://electron.atom.io)
+This project relies on the Gorilla Websocket (https://github.com/gorilla/websocket)
 
-## Features
-What makes your project stand out?
+The go code test uses Testify (https://github.com/stretchr/testify)
 
-## Domain 
-Explain the relation ship with diagrams of Rooms, Clients, Users
+The sample chat application front end use jQuery (https://jquery.com/)
 
-## Preformance
 
-Test results
+## Tests
 
-# Code Example
+The soc draw socket server is tested using Go-Langs testing package. The tests range from unit tests for individual structs, integration tests for key components like the Lobby and feature tests which attempt to cover a journeys on the backend.
 
-## Example 1 - GoLang Chat Server
-A simple Go chat server. In this example the Socket server will be used a module with a go application. The actual application that will be handling the payloads is passed to the application before starting.
+To run the test use the following command from the project root:
 
-This is a simple struct that implements the "something something" interface. The Application on the backend will simply decode the payload and count the number of words used in the each message for each user, this will be sent back to the frontend for the frontend to display.
+`go test ./...`
 
-The frontend client will be the simple-chat JS application provided by this project that allows for the user to enter the application, enter a room or conversation with someone. We will update this in the example to use the updated payload by the new go-lang application.
+# Examples
 
-......
+## Simple Chat Application
 
-## Example 2 - Simple Node JS Pong Game
+This project currently ships with an example chat application. Running this application is simple.
 
-In this example our socket server will be set up to point to a local NodeJS server, This will compuncate of http. The Socket Server will handle all the client request as usual as well as maintain a connection to the node server. This will also be a websocket server. The payload will be passed the node js server which will manage its state.
+Simply build and run the server by running either of the following:
 
-This game server will use the room ID to maintain previous state for that particlar game.
+`go run main.go simple-chat-application.go`
 
-The frontend client will be the pong game js server.
+or 
+
+`go build` and `./soc-draw`
+
+
+Go to the `localhost:8089` and should see a small form to enter a user name and log in
+
+![Login screen](/readme-resources/sd_user_login.png)
+
+To see a the user names that will allow you to enter the lobby check the main.go file and look for the user structs used to create the the `users` map.
+
+![User Data](/readme-resources/user_data.png)
+
+Enter a valid user ID into the form input label `username`.
+
+![User Logging In](/readme-resources/user-logging-in.png)
+
+Once a you have entered the lobby you will have access to rooms. At this point a socket connection has been created for that user click on a room to enter it.
+
+![User In lobby](/readme-resources/user-in-lobby.png)
+
+Once a user has entered a room you might have to wait until enough users have entered the room before the room-application starts. This simple chat application that this lobby works with requires at least two users in a room to begin.
+
+![User Entered room and waiting](/readme-resources/user-entered-room-and-waiting.png)
+
+In separate browser window. Repeat the steps with a different user. Once the second user enters the same room as the first the room-application should start and be shown to both users
+
+![Second user logging in](/readme-resources/second-user-logged-in.png)
+
+At this point the soc-draw client has done its work and handled users through the lobby into rooms and an initiated the room application. The state received from the initial room set up event and subsequent room broadcasts is passed to the room-application update function.
+
+![Two-users-in-room](/readme-resources/two-users-entered.png)
+
+The chat application itself is responsible for building the message display window,handling the the text form and attaching any application event such as pressing the enter button.
+
+![Two-users-in-room](/readme-resources/chat-app-running.png)
+
+#### Multiple rooms
+
+Although a room application is running users are able to move to other rooms.
+
+In a third browser window login as a third user and enter the second room, you will see that user 3 is waiting for the for a second user to enter the room.
+
+Using user:1 window enter the second room. This will start a second conversation notice that messages sent into room 2 by user 1 or 3 do not appear in room 1 and vice-versa. User 1 can seamlessly move between rooms without missing messages by clicking on the different rooms. 
+
+The `soc-draw` application is able to store state by room id so that a user can receive state for multiple rooms while only displaying the state for one.
+
+## Example, building or own room application frontend
+
+... in progress
+
+## Domain
+
+The domain is generally quite simple. As it stands one application instance runs one lobby. A lobby is responsible for managing multiple users and their access to multiple rooms. A lobby is responsible for one room application and each room manages only a state for that room's application instance.
+
+Currently the creation of user and rooms is hard coded in the main.go file as all the applications only persists state in memory at this point.
+
+... more to come
 
 ## Installation
-Provide step by step series of examples and explanations about how to get a development env running.
+
+The soc-draw application is just a prototype at this stage and has been designed for local development only.
+
+To start the application and run quickly use go run from the root of the project
+
+`go run main.go simple-chat-application.go`
+
+This will start the project and allows access via `http://localhost:8089/`
+
+To build and run the server binary in root run:
+
+`go build`
+`./soc-draw`
+
+To install the project run:
+
+`go install`
+
+The `soc-draw` binary should be in your go workspace `/bin` directory
 
 ## API Reference
 
-Depending on the size of the project, if it is small and simple enough the reference docs can be added to the README. For medium size to larger projects it is important to at least provide a link to where the API reference docs live.
+There are two routes defined by the server. The home route the websocket url.
 
-## Tests
-Describe and show how to run the tests with code examples.
+Home - http://localhost:8089
 
-## How to use?
-If people like your project they’ll want to learn how they can use it. To do so include step by step guide to use your project.
+Socket creation - http://localhost:8089/ws
 
-## Contribute
+## Other things
 
-Let people know how they can contribute into your project. A [contributing guideline](https://github.com/zulip/zulip-electron/blob/master/CONTRIBUTING.md) will be a big plus.
+The go code has been organised into just one package currently. It will be extracted into modules as the project evolves.
 
-## Credits
-Give proper credits. This could be a link to any repo which inspired you to build this project, any blogposts or links to people who contrbuted in this project. 
+## Next steps
 
-#### Anything else that seems useful
+The next items to be be added and fixed in no particular order are:
 
-## License
-A short snippet describing the license (MIT, Apache etc)
-
-MIT © [Yourname]()
+- Create flow diagram to describe the Applications's process in more detail
+- Framework for developing room applications
+- Add room notifications, these are messages sent by the server to give updates on rooms.
+- Handle closing sockets and deactivating rooms
+- Update FE lobby to provide better UX
+- Introduce proper authentication for users
+- Create CRUD actions for users, rooms
+- Improve error system and error handling on the frontend
+- Introduce private rooms
