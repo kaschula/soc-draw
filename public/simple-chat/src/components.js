@@ -2,25 +2,38 @@
     function ComponentLibrary() {
         function userFormComponent() {
             return `
+            <div>
+                <h2 class="text-center">Please Login</h2>
                 <form id="entry-form">
-                    <label>Username</label>
-                    <input name="username" type="text">
-                    <button id="enter-form-submit">Enter</button> 
+                    <div class="form-group">
+                        <label class="">Username: </label>
+                        <input class="form-control" name="username" type="text">
+                    </div>
+                    <div class="form-group">
+                        <button id="enter-form-submit" class="btn btn-primary col-sm-12" type="submit">Enter</button> 
+                    </div>
                 </form>
+            </div>      
             `
         }
         
         function roomSelectComponent(room) {
             return `
-                <div class="room">
-                    <span>${room.Name}</span>
-                    <button data-room-id="${room.ID}" class="room-select-btn">Enter</button>
+                <div class="room list-group-item w-100">
+                    <p class="text-left sd-display-inline" >${room.Name}</p>
+                    <button class="room-select-btn btn btn-secondary btn-sm text-right sd-display-inline" data-room-id="${room.ID}" class="room-select-btn">Enter</button>
                 </div>
             `
         }
         
         function userComponent(user) {
-            return `<div> Welcome ${user.ID}</div>`
+            return `
+            <div class="row">  
+                <div class="card w-100">
+                    <div class="card-body"> Welcome ${user.ID} </div>
+                </div>
+            </div>
+            `
         }
         
         function messageComponent(username, messageType, message) {
@@ -31,14 +44,6 @@
                 </div>`
             )
         }
-        
-        // can delete this
-        function roomWaitingComponent() {
-            return (`
-                <p id="room-waiting-message" >Request latest room state.... </p>
-            `)
-        }
-        
         
         function roomStatusMessageComponent(message) {
             return (
@@ -56,7 +61,6 @@
         this.roomSelectComponent = roomSelectComponent
         this.userComponent = userComponent
         this.messageComponent = messageComponent
-        this.roomWaitingComponent = roomWaitingComponent
         this.roomStatusMessageComponent = roomStatusMessageComponent
         this.applicationWindowComponent = applicationWindowComponent
     }

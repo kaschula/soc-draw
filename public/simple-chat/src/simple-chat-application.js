@@ -18,7 +18,7 @@
                     lobby.getCurrentRoomId(), 
                     message
                 );
-                console.log('message json: ', payload)
+
                 lobby.send(payload)
             } catch(e) {
                 console.log('send message error: ', e.message)
@@ -26,17 +26,14 @@
         }
         
         function getMessage() {
-            // All UI service stuff must just use Query
-            const message =  uiService.getMessageValue()
-            uiService.clearMessageValue()
-        
+            const message =  uiService.query('input[name=message]').val()
+            uiService.query('input[name=message]').val('')
+
             return message
         }
         
         function hydrateApplicationWindow(state) {
-            console.log("hydrateApplicationWindow()", state)
             const messages = uiService.query("#current-room #application-window .messages")
-            console.log("messages div", messages)
         
             if (!messages.length) {
                 console.log("Error: App messages div could not be found")
@@ -87,8 +84,15 @@
             }
         
             return (`
-                <div class="${className}"><span class="user">${message.sender}: </span><span class="message-value">${message.message}</span></div>
+                <div class="${className}">
+                    <span class="user">${message.sender}: </span>
+                    <span class="message-value">${message.message}</span>
+                </div>
             `)
+        }
+
+        function addChatMessageSubmit(uiService) {
+            uiService.query('#chat-submit').click(sendMessageHandler)
         }
         
         function createMessageJson(username, roomId, message) {
@@ -102,15 +106,14 @@
 
         this.initialise = function(state) {
             const appWindow = uiService.query("#application-window")
+            appWindow.append(messagingAppComponent())
 
             if (!uiService.query(`#${simpleAppDivId}`).length) {
                 // ToDo: this check should be responsability of the room not a room application
                 appWindow.append(messagingAppComponent())
             }
 
-            // uiService can only Query
-            uiService.addChatMessageSubmit(sendMessageHandler)
-        
+            addChatMessageSubmit(uiService)
             hydrateApplicationWindow(state)
         }
         

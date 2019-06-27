@@ -6,14 +6,13 @@
             return m;
         }
         this.unmarshallRoomMessageJson = function (messagePayload) {
-            // console.log("unmarshallRoomMessageJson: ")
-            const m = JSON.parse(messagePayload)
+            const message = JSON.parse(messagePayload)
         
-            if ( !m.username || !m.room || !m.message) {
+            if ( !message.username || !message.room || !message.message) {
                 throw new Error("room message cant be resolved from payload: ", messagePayload)
             }
         
-            return m;
+            return message;
         }
         
         this.joinLobbyRequest = function (username) {

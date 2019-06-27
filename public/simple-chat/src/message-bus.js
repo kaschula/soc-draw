@@ -19,7 +19,7 @@
         function receivedUserJoinedRoom(payload) {
             const roomId = JSON.parse(payload).RoomId
             if (!roomId) {
-                return // handle error
+                return
             }
         
             lobby.setUserJoinedRoom(roomId)
@@ -50,7 +50,7 @@
         function appRoomBroadcast(roomId, payload) {
             if (!lobby.isRoomInitialised(roomId)) {
                 console.log('appRoomBroadcast() ERROR: room not initialised')
-                return // make socket request for inital event
+                return
             }
         
             if (!roomId) {
@@ -84,11 +84,16 @@
             if (lobby.roomIsInitialisedAndStateExists(roomId)) {
                 return
             }
-        
+
+
             uiService.initialiseAppWindow()
+
+            uiService.destroyApp()
             roomApplication.initialise(broadcast.state)
+
             lobby.setRoomState(roomId, broadcast.state)
             lobby.setRoomInitialised(roomId)
+            
             uiService.removeRoomMessages()
         }
     
@@ -104,7 +109,6 @@
             uiService.showUserForm()
         }
     
-        // change msg -> message
         function dispatch(message) {
             switch(message.Type) {
                 case "CREATED": 
@@ -137,7 +141,7 @@
     
         this.processSocketData = function(data) {
             if (!data.Type || !data.Payload) {
-                console.log("Message incomplete: ")
+                console.log("Message incomplete: ", data)
                 return
             }
     

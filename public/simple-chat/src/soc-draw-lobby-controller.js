@@ -27,20 +27,17 @@
             }
         
             if (sockDrawClient.hasRoomState(roomId)) {
-                // change currentroom
                 changeToRoom(roomId)
                 return
             }
         
             if (sockDrawClient.hasUserJoinedRoom(roomId)) {
                 console.log("RoomSelectEvent:: User has already joined room")
-                // request state ??
                 return 
             }
         
             try {
                 sockDrawClient.send(
-                    // THis should be in the message factory
                     JSON.stringify({
                         messageType: "LOBBY_ROOM_REQUEST", 
                         payload: JSON.stringify({roomId})
@@ -53,7 +50,12 @@
     
         function changeToRoom(roomId) {
             sockDrawClient.setCurrentRoomId(roomId)
-            roomApplication.update(sockDrawClient.getRoomState(roomId))
+            const state = sockDrawClient.getRoomState(roomId);
+
+            uiService.destroyApp()
+            roomApplication.initialise(state)
+            roomApplication.update(state)
+
             uiService.currentRoomUpdated(roomId)
         }
     

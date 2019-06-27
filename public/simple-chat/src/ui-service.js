@@ -4,30 +4,16 @@
         let roomSelectHandler = () => {}
         
         // events
-        // these should use handler passed in
         const addEnterFormClick = (handler) => _$('#enter-form-submit').click(handler)
-        // This should be moved into RoomApplication
-        const addChatMessageSubmit = (handler) => _$('#chat-submit').click(handler)
         const addRoomEventHandler = (handler) => _$('.room-select-btn').click(handler)
         
         // inputs (These should return just the values)
         const getUsernameValue = () => _$('input[name=username]').val()
-        const getRoomValue = () => _$('input[name=room]').val()
-        const getMessageValue = () => _$('input[name=message]').val()
-        const clearMessageValue = () => _$('input[name=message]').val('')
-    
-        // messages
-        const getMessagesContainer = () => _$('#messages')
-        const clearMessages = () => getMessagesContainer().empty()
-        const appendMessage = (username, messageType, message) => {
-            getMessagesContainer().append(components.messageComponent(username, messageType, message))
-        }
-        const focusOnSendButton = () => _$('#chat-submit').focus()
+
         const replaceUserInputWithLoading = () => {
             const container = _$("#entry-form-container")
             container.empty()
             container.append(`<p>Welcome. Fetching details..... </p>`)
-    
         }
     
         const showUserForm = () => {
@@ -46,7 +32,6 @@
     
         const displayRooms = (rooms) => {
             const container = _$("#rooms-container")
-            // container.empty()
             rooms.forEach(room => {
                 container.append(components.roomSelectComponent(room))
             });
@@ -77,7 +62,6 @@
             applicationWindow.empty()
 
             showRoomMessage("Room waiting to start", true)
-            // currentRoom.append(components.roomWaitingComponent())
         } 
         const displayUser = (user) => {
             const container = _$("#entry-form-container")
@@ -87,10 +71,8 @@
     
         const hideMessageBoard = () =>  _$("#message-board").hide()
     
-        // ChatApp code should be moved out of UI service
         const initialiseAppWindow = () => {
             const applicationWindow = _$("#application-window")
-            // applicationWindow.empty()
             if (applicationWindow.length) {
                 return
             }
@@ -106,18 +88,16 @@
         }
     
         const setRoomSelectHandler = (handler) => roomSelectHandler = handler
+
+        destroyApp = () => {
+            const appWindow = _$("#application-window")
+            appWindow.empty()
+        }
     
         return {
             query: _$,
             addEnterFormClick,
-            addChatMessageSubmit,
-            getMessageValue,
-            clearMessageValue,
             getUsernameValue,
-            getRoomValue,
-            clearMessages,
-            appendMessage,
-            focusOnSendButton,
             replaceUserInputWithLoading,
             displayErrorMessage,
             showUserForm,
@@ -134,7 +114,7 @@
             currentRoomUpdated,
             setRoomSelectHandler,
             removeRoomMessages,
-            // hydrateApplicationWindow,
+            destroyApp,
         }
     }
 
